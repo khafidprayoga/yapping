@@ -1,21 +1,19 @@
 <?php
 
-namespace Khafidprayoga\PhpMicrosite\Views;
+namespace Khafidprayoga\PhpMicrosite\Views\Fragment;
 
-class Home
+class NotFound
 {
-    private static string $title = "X MicroSite / Home";
+    private static string $title = "X MicroSite / Not Found";
+    private static string $tagline = "X MicroSite ";
 
-    private static string $tagline = "Welcome to X MicroSite!";
-    private static string $description = "X is an simple social media platform to demonstrate my experience as backend developer.";
 
     public static function render()
     {
         $title = self::$title;
         $tagline = self::$tagline;
-        $description = self::$description;
 
-        echo <<<RENDER
+        return <<<RENDER
         <html lang="id">
         <head>
             <title> {$title} </title>
@@ -43,8 +41,9 @@ class Home
         </head>
         <body>
         <main>
-            <h1>{$tagline}</h1>
-            <h2>{$description}</h2>
+            <h1>$tagline</h1>
+            <h2>404</h2>
+            <h3>Something went wrong, you are visiting invalid route.</h3>
         </main>
         </body>
         </html>

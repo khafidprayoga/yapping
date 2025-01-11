@@ -1,17 +1,10 @@
 <?php
 declare(strict_types=1);
+ini_set('display_errors', 1);
 
-use Bramus\Router\Router;
-use Khafidprayoga\PhpMicrosite\Views;
-use Khafidprayoga\PhpMicrosite\Controllers;
+use Khafidprayoga\PhpMicrosite\Routes\Route;
 
 require __DIR__ . '/vendor/autoload.php';
 
-$router = new Router();
-
-$router->get("/", function () {
-    echo Views\Home::render();
-});
-
-$router->run();
-
+$route = new Route();
+$route->dispatch();
