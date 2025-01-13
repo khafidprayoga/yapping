@@ -4,8 +4,10 @@
   "require": {
     "bramus/router": "~1.6",
     "monolog/monolog": "^3.8",
-    "propel/propel": "~2.0@beta",
-    "php-di/php-di": "^7.0"
+    "php-di/php-di": "^7.0",
+    "doctrine/orm": "3",
+    "doctrine/dbal": "4",
+    "symfony/cache": "7"
   },
   "autoload": {
     "psr-4": {
