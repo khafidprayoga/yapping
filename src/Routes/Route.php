@@ -25,7 +25,12 @@ class Route
     {
         $routes = require __DIR__ . "/routes.php";
 
-        foreach ($routes as $route) {
+        foreach ($routes as $name => $route) {
+            if ($route instanceof RouteMap) {
+                $this->router->{$route->getMethod()}($route->getPath(), $route->getHandler());
+                continue;
+            }
+
             $this->router->{$route["method"]}($route["path"], $route["handler"]);
         }
 

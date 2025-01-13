@@ -2,6 +2,8 @@
 
 
 use Khafidprayoga\PhpMicrosite\Views;
+use Khafidprayoga\PhpMicrosite\Routes\RouteMap;
+use Khafidprayoga\PhpMicrosite\Routes\HttpMethod;
 
 /**
  * Define the structure for route definitions
@@ -10,11 +12,11 @@ use Khafidprayoga\PhpMicrosite\Views;
  * @param callable|array $controller The controller, either as a closure or [ClassName, 'method']
  */
 $routes = array(
-    [
-        "method" => "GET",
-        "path" => "/(index.*)?",
-        "handler" => [Views\Home::class, 'render'],
-    ],
+    "HomePage" => new RouteMap(
+        method: HttpMethod::GET,
+        path: "/(index.*)?",
+        handler: [Views\Home::class, 'render'],
+    )
 );
 
 return $routes;
