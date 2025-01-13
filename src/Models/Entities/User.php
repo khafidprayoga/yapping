@@ -26,4 +26,13 @@ class User
 
     #[ORM\Column(name: 'updated_at', type: 'datetimetz')]
     private int $updatedAt;
+
+    #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'user')]
+    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'user_id', nullable: false)]
+    private array $posts;
+
+    public function getPosts(): array
+    {
+        return $this->posts;
+    }
 }
