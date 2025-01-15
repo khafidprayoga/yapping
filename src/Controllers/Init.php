@@ -2,20 +2,18 @@
 
 namespace Khafidprayoga\PhpMicrosite\Controllers;
 
-use Khafidprayoga\PhpMicrosite\Providers\Logger;
+use Khafidprayoga\PhpMicrosite\Commons\Dependency;
 use Khafidprayoga\PhpMicrosite\Providers\TwigEngine;
-use Monolog\Logger as MonologLogger;
 use Twig\Environment;
 
-class Main
+class Init extends Dependency
 {
     private Environment $twig;
-    public MonologLogger $log;
 
     public function __construct()
     {
+        parent::__construct();
         $this->twig = TwigEngine::getInstance();
-        $this->log = Logger::getInstance();
     }
 
     public function render(string $template, array $data = []): void

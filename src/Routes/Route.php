@@ -3,20 +3,17 @@
 namespace Khafidprayoga\PhpMicrosite\Routes;
 
 use Bramus\Router\Router;
-use http\Env\Response;
-use Khafidprayoga\PhpMicrosite\Providers\Logger;
-use Monolog\Logger as MonologLogger;
+use Khafidprayoga\PhpMicrosite\Commons\Dependency;
 use Khafidprayoga\PhpMicrosite\Views;
 
-class Route
+class Route extends Dependency
 {
     private Router $router;
-    private MonologLogger $log;
 
     public function __construct()
     {
+        parent::__construct();
         $this->router = new Router();
-        $this->log = Logger::getInstance();
 
         $this->register();
     }
