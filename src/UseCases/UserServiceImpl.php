@@ -6,7 +6,7 @@ use Khafidprayoga\PhpMicrosite\Models\DTO\UserDTO;
 use Khafidprayoga\PhpMicrosite\Models\Entities\User;
 use Khafidprayoga\PhpMicrosite\Services\UserService;
 
-class UserServiceImpl extends Init implements UserService
+class UserServiceImpl extends InitUseCase implements UserService
 {
     public function createUser(UserDTO $request): User
     {

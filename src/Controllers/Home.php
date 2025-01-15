@@ -2,7 +2,7 @@
 
 namespace Khafidprayoga\PhpMicrosite\Controllers;
 
-class Home extends Init
+class Home extends InitController
 {
     public function index(): void
     {

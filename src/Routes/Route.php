@@ -44,9 +44,9 @@ class Route extends Dependency
 
         foreach ($routes as $name => $route) {
             if ($route instanceof RouteMap) {
-                $this->router->{$route->getMethod()}($route->getPath(), function () use ($route) {
+                $this->router->{$route->getMethod()}($route->getPath(), function (...$args) use ($route) {
                     $handler = $route->getHandler();
-                    return (new $handler[0]())->{$handler[1]}();
+                    return (new $handler[0]())->{$handler[1]}(...$args);
                 });
                 continue;
             }

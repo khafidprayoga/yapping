@@ -11,6 +11,7 @@ $config = ORMSetup::createAttributeMetadataConfiguration(
     paths: [__DIR__ . '/../src/Models/Entities'],
     isDevMode: true,
 );
+
 // or if you prefer XML
 // $config = ORMSetup::createXMLMetadataConfiguration(
 //    paths: [__DIR__ . '/config/xml'],
@@ -29,3 +30,4 @@ return [
     "entityManager" => $entityManager,
     "connection" => $connection,
 ];
+

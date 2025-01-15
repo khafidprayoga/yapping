@@ -2,8 +2,7 @@
 
 namespace Khafidprayoga\PhpMicrosite\Controllers;
 
-
-class User extends Init
+class User extends InitController
 {
     public function actionCreateUser(): void
     {

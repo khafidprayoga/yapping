@@ -3,19 +3,29 @@
 namespace Khafidprayoga\PhpMicrosite\Providers;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
 
 class Database
 {
-    protected Connection $db;
+    public static ?Connection $db;
+    protected static EntityManager $entityManager;
 
-    public function __construct()
+
+    public static function getInstance(): Connection
     {
-        $bootstrap = require(APP_ROOT . '/bin/bootstrap.php');
-        $this->db = $bootstrap['connection'];
+        if (!isset(self::$db)) {
+            $bootstrap = require(APP_ROOT . '/bin/bootstrap.php');
+            self::$db = $bootstrap['connection'];
+        }
+        return self::$db;
     }
 
-    public function getDb(): Connection
+    public static function getEntityManager(): EntityManager
     {
-        return $this->db;
+        if (!isset(self::$entityManager)) {
+            $bootstrap = require(APP_ROOT . '/bin/bootstrap.php');
+            self::$entityManager = $bootstrap['entityManager'];
+        }
+        return self::$entityManager;
     }
 }

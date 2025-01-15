@@ -5,7 +5,6 @@ namespace Khafidprayoga\PhpMicrosite\Models\Entities;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\DBAL\Types\Types;
 
-
 #[ORM\Entity]
 #[ORM\Table(name: 'votes')]
 class Vote
