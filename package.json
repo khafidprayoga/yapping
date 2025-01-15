@@ -2,9 +2,7 @@
   "name": "php-microsite",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {
-    "build:tw": "tailwindcss -i ./assets/css/tailwind.css -o ./assets/css/min/tailwind.css --minify"
-  },
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",

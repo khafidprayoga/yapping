@@ -1,0 +1,11 @@
+version: '3'
+
+tasks:
+  compile-css:
+    cmds:
+      - npx tailwindcss -i ".\assets\css\tailwind.css" -o ".\src\Views\styles.css" --watch
+#    silent: true
+  run-dev:
+    cmds:
+      - composer dev
+#    silent: true
