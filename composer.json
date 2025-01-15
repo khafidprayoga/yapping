@@ -28,7 +28,8 @@
       "Composer\\Config::disableProcessTimeout",
       "php -S localhost:8000 index.php"
     ],
-    "lint": "./vendor/bin/php-cs-fixer fix src"
+    "lint": "./vendor/bin/php-cs-fixer fix src",
+    "dev-apply-migration": "php bin/doctrine orm:schema-tool:update --force --complete"
   },
   "config": {
     "platform": {
