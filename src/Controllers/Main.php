@@ -3,10 +3,10 @@
 namespace Khafidprayoga\PhpMicrosite\Controllers;
 
 use Khafidprayoga\PhpMicrosite\Providers\Logger;
+use Khafidprayoga\PhpMicrosite\Providers\TwigEngine;
 use Monolog\Logger as MonologLogger;
 
 use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
 
 class Main
 {
@@ -15,17 +15,14 @@ class Main
 
     public function __construct()
     {
-        $twig = new Environment(new FilesystemLoader(APP_ROOT . "/src/Views"), []);
-
-
-        $this->twig = $twig;
+        $this->twig = TwigEngine::getInstance();
         $this->log = Logger::getInstance();
-
     }
 
     public function render(string $template, array $data = []): void
     {
-        $view = $this->twig->render($template, $data);
+        $templateName = $template . ".twig";
+        $view = $this->twig->render($templateName, $data);
         echo $view;
 
     }

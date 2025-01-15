@@ -3,7 +3,7 @@ version: '3'
 tasks:
   compile-css:
     cmds:
-      - npx tailwindcss -i ".\assets\css\tailwind.css" -o ".\src\Views\styles.css" --watch
+      - npx tailwindcss -i ".\assets\css\tailwind.css" -o ".\src\Views\styles.css" --watch --minfiy
 #    silent: true
   run-dev:
     cmds:

@@ -20,27 +20,20 @@
 <main class="flex flex-col justify-center items-center mt-[50vh]">
     <h1 class="text-blue-700 text-4xl font-libreBaskerville font-[500]">{{ tagline }}</h1>
     <h2 class="text-xl font-rasa ">{{ description }}</h2>
+
     <!--     Menu CTA       -->
     <div class="mt-5">
         <ul id="cta-menu-onboarding">
-            <li>
-                <a href="/feeds">
-                    Feed
-                </a>
-            </li>
-            <li>
-                <a href="/login">
-                    Login
-                </a>
-            </li>
-            <li>
-                <a href="/register">
-                    Register
-                </a>
-            </li>
+            {% for navigation in cta %}
+                {% for link, label in navigation %}
+                    <li>
+                        <a href="{{ link }}">{{ label }}</a>
+                    </li>
+                {% endfor %}
+
+            {% endfor %}
         </ul>
     </div>
-
 </main>
 </body>
 </html>

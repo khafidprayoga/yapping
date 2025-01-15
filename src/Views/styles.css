@@ -594,10 +594,6 @@ video {
   transition-duration: 200ms;
 }
 
-.static {
-  position: static;
-}
-
 .mt-5 {
   margin-top: 1.25rem;
 }
@@ -614,20 +610,12 @@ video {
   flex-direction: column;
 }
 
-.flex-wrap {
-  flex-wrap: wrap;
-}
-
 .items-center {
   align-items: center;
 }
 
 .justify-center {
   justify-content: center;
-}
-
-.border {
-  border-width: 1px;
 }
 
 .font-libreBaskerville {
@@ -650,11 +638,6 @@ video {
 
 .font-\[500\] {
   font-weight: 500;
-}
-
-.text-red-700 {
-  --tw-text-opacity: 1;
-  color: rgb(185 28 28 / var(--tw-text-opacity, 1));
 }
 
 .text-blue-700 {

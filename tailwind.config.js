@@ -2,7 +2,7 @@
 
 module.exports = {
   content: [
-    "src/Views/**/*.php",
+    "src/Views/**/*.twig",
   ],
   theme: {
     extend: {
