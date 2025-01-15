@@ -1,9 +1,9 @@
 <?php
 
 
+use Khafidprayoga\PhpMicrosite\Commons\HttpMethod;
 use Khafidprayoga\PhpMicrosite\Controllers;
 use Khafidprayoga\PhpMicrosite\Routes\RouteMap;
-use Khafidprayoga\PhpMicrosite\Routes\HttpMethod;
 
 /**
  * Define the structure for route definitions

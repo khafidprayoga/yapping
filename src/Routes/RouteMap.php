@@ -2,14 +2,7 @@
 
 namespace Khafidprayoga\PhpMicrosite\Routes;
 
-enum HttpMethod: string
-{
-    case GET = 'get';
-    case POST = 'post';
-    case PUT = 'put';
-    case PATCH = 'delete';
-
-}
+use Khafidprayoga\PhpMicrosite\Commons\HttpMethod;
 
 class RouteMap
 {

@@ -11,5 +11,3 @@ class Init extends Dependency
         parent::__construct();
     }
 }
-
-
