@@ -9,3 +9,7 @@ tasks:
     cmds:
       - composer dev
 #    silent: true
+  lint:
+    cmds:
+      - composer lint
+    silent: true

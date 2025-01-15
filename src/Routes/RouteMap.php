@@ -17,8 +17,7 @@ class RouteMap
         public readonly HttpMethod $method,
         public readonly string     $path,
         public readonly array      $handler,
-    )
-    {
+    ) {
     }
 
     public function getMethod(): string

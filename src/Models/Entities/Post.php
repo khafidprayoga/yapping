@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Khafidprayoga\PhpMicrosite\Models\Entities;
 
 use Doctrine\DBAL\Types\Types;

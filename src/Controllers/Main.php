@@ -5,7 +5,6 @@ namespace Khafidprayoga\PhpMicrosite\Controllers;
 use Khafidprayoga\PhpMicrosite\Providers\Logger;
 use Khafidprayoga\PhpMicrosite\Providers\TwigEngine;
 use Monolog\Logger as MonologLogger;
-
 use Twig\Environment;
 
 class Main

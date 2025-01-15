@@ -2,6 +2,7 @@
 
 class Login
 {
-    public function index(){
+    public function index()
+    {
     }
 }

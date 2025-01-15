@@ -8,7 +8,6 @@ use Khafidprayoga\PhpMicrosite\Providers\Logger;
 use Monolog\Logger as MonologLogger;
 use Khafidprayoga\PhpMicrosite\Views;
 
-
 class Route
 {
     private Router $router;
@@ -50,7 +49,7 @@ class Route
             if ($route instanceof RouteMap) {
                 $this->router->{$route->getMethod()}($route->getPath(), function () use ($route) {
                     $handler = $route->getHandler();
-                    return (new $handler[0])->{$handler[1]}();
+                    return (new $handler[0]())->{$handler[1]}();
                 });
                 continue;
             }
