@@ -33,10 +33,10 @@ class Route
             if (file_exists($filePath)) {
                 $content = file_get_contents($filePath);
                 header('Content-Type: text/css');
-                header('Content-Length: ' . filesize($content));
+                header('Content-Length: ' . filesize($filePath));
 
 
-                return $content;
+                echo $content;
 
             } else {
                 header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');

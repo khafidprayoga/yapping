@@ -23,29 +23,41 @@ class Home
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta charset="utf-8">
             <link rel="stylesheet" href="/styles.css">
-            <style>
-                main {
-                    border: 1px solid black;
-                }
-                
-                main {
-                    display: flex;
-                    flex-direction: column;
-                    flex-wrap: wrap;
-                    align-content: center;
-                    align-items: center;
-                    width: 50%;
-                    max-width: 720px;
-                    height: 75vh;
-                    margin: 0 auto;
-                    padding: 1em 1em;
-                }
-            </style>
+        
+            <!--  fonts -->
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Merriweather+Sans:ital,wght@0,300..800;1,300..800&family=Rasa:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+            <!--  fonts -->
+            
         </head>
         <body>
-        <main>
-            <h1 class="text-blue-500 text-lg">{$tagline}</h1>
-            <h2>{$description}</h2>
+        <main class="flex flex-col justify-center items-center mt-[50vh]">
+            <h1 class="text-blue-700 text-4xl font-libreBaskerville font-[500]">{$tagline}</h1>
+            <h2 class="text-xl font-rasa ">{$description}</h2>
+            <!--     Menu CTA       -->
+            <div class="mt-5">
+                    <ul id="cta-menu-onboarding">
+                        <li>
+                            <a href="#">
+                                Feeds
+                            </a>
+                        </li>
+                         <li>
+                            <a href="#">
+                                Login
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                Register
+                            </a>
+                        </li>
+                    </ul>
+            </div>
+                
         </main>
         </body>
         </html>
