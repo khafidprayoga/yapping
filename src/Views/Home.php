@@ -22,6 +22,7 @@ class Home
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta charset="utf-8">
+            <link rel="stylesheet" href="/styles.css">
             <style>
                 main {
                     border: 1px solid black;
@@ -43,7 +44,7 @@ class Home
         </head>
         <body>
         <main>
-            <h1>{$tagline}</h1>
+            <h1 class="text-blue-500 text-lg">{$tagline}</h1>
             <h2>{$description}</h2>
         </main>
         </body>
