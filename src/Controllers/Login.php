@@ -2,5 +2,6 @@
 
 class Login
 {
-
+    public function index(){
+    }
 }

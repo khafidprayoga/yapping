@@ -1,7 +1,7 @@
 <?php
 
 
-use Khafidprayoga\PhpMicrosite\Views;
+use Khafidprayoga\PhpMicrosite\Controllers;
 use Khafidprayoga\PhpMicrosite\Routes\RouteMap;
 use Khafidprayoga\PhpMicrosite\Routes\HttpMethod;
 
@@ -15,7 +15,7 @@ $routes = array(
     "HomePage" => new RouteMap(
         method: HttpMethod::GET,
         path: "/(index.*)?",
-        handler: [Views\Home::class, 'render'],
+        handler: [Controllers\Home::class, 'index'],
     )
 );
 

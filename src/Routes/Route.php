@@ -48,7 +48,10 @@ class Route
 
         foreach ($routes as $name => $route) {
             if ($route instanceof RouteMap) {
-                $this->router->{$route->getMethod()}($route->getPath(), $route->getHandler());
+                $this->router->{$route->getMethod()}($route->getPath(), function () use ($route) {
+                    $handler = $route->getHandler();
+                    return (new $handler[0])->{$handler[1]}();
+                });
                 continue;
             }
 
