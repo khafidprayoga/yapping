@@ -2,6 +2,7 @@
 
 namespace Khafidprayoga\PhpMicrosite\UseCases;
 
+use DI\Attribute\Inject;
 use DI\Attribute\Injectable;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
@@ -11,10 +12,11 @@ use Khafidprayoga\PhpMicrosite\Services\PostServiceInterface;
 use Khafidprayoga\PhpMicrosite\Services\ServiceMediatorInterface;
 use Khafidprayoga\PhpMicrosite\Services\UserServiceInterface;
 
-#[Injectable]
+#[Injectable(lazy: true)]
 class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterface
 {
     private EntityRepository $repo;
+    #[Inject]
     private UserServiceInterface $userService;
 
     public function __construct(ServiceMediatorInterface $mediator)
@@ -25,8 +27,6 @@ class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterfa
         parent::__construct($db, $entityManager);
 
         $this->repo = $this->entityManager->getRepository(Post::class);
-
-        $this->userService = $mediator->get(UserServiceInterface::class);
     }
 
     public function createNewPost(): Post
