@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Khafidprayoga\PhpMicrosite\Commons\Dependency;
 use Doctrine\ORM\EntityManager;
 
-class InitUseCase extends Dependency
+abstract class InitUseCase extends Dependency
 {
     protected Connection $db;
     protected EntityManager $entityManager;
@@ -18,4 +18,5 @@ class InitUseCase extends Dependency
         $this->db = $db;
         $this->entityManager = $entityManager;
     }
+
 }

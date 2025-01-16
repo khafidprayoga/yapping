@@ -2,12 +2,24 @@
 
 namespace Khafidprayoga\PhpMicrosite\UseCases;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 use Khafidprayoga\PhpMicrosite\Models\DTO\UserDTO;
 use Khafidprayoga\PhpMicrosite\Models\Entities\User;
 use Khafidprayoga\PhpMicrosite\Services\UserService;
 
 class UserServiceImpl extends InitUseCase implements UserService
 {
+    private EntityRepository $repo;
+
+    public function __construct(Connection $db, EntityManager $entityManager)
+    {
+        parent::__construct($db, $entityManager);
+
+        $this->repo = $this->entityManager->getRepository(User::class);
+    }
+
     public function createUser(UserDTO $request): User
     {
         // TODO: Implement createUser() method.
