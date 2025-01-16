@@ -4,7 +4,7 @@ namespace Khafidprayoga\PhpMicrosite\Services;
 
 use Khafidprayoga\PhpMicrosite\Models\Entities\Post;
 
-interface PostService
+interface PostServiceInterface
 {
     public function createNewPost(): Post;
 

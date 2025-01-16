@@ -2,22 +2,31 @@
 
 namespace Khafidprayoga\PhpMicrosite\UseCases;
 
+use DI\Attribute\Injectable;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Khafidprayoga\PhpMicrosite\Models\DTO\UserDTO;
 use Khafidprayoga\PhpMicrosite\Models\Entities\User;
-use Khafidprayoga\PhpMicrosite\Services\UserService;
+use Khafidprayoga\PhpMicrosite\Services\PostServiceInterface;
+use Khafidprayoga\PhpMicrosite\Services\ServiceMediatorInterface;
+use Khafidprayoga\PhpMicrosite\Services\UserServiceInterface;
+use UserService;
 
-class UserServiceImpl extends InitUseCase implements UserService
+#[Injectable]
+class UserServiceInterfaceImpl extends InitUseCase implements UserServiceInterface
 {
     private EntityRepository $repo;
+    //    private PostServiceInterface $postService;
 
-    public function __construct(Connection $db, EntityManager $entityManager)
+    public function __construct(ServiceMediatorInterface $mediator)
     {
+        $db = $mediator->get(Connection::class);
+        $entityManager = $mediator->get(EntityManager::class);
         parent::__construct($db, $entityManager);
 
         $this->repo = $this->entityManager->getRepository(User::class);
+        //        $this->postService = $mediator->get(PostServiceInterface::class);
     }
 
     public function createUser(UserDTO $request): User
@@ -44,4 +53,6 @@ class UserServiceImpl extends InitUseCase implements UserService
     {
         // TODO: Implement getLikedPosts() method.
     }
+
+
 }

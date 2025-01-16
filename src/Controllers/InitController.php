@@ -2,35 +2,63 @@
 
 namespace Khafidprayoga\PhpMicrosite\Controllers;
 
+use DI\ContainerBuilder;
 use Khafidprayoga\PhpMicrosite\Commons\Dependency;
 use Khafidprayoga\PhpMicrosite\Providers\Database;
 use Khafidprayoga\PhpMicrosite\Providers\TwigEngine;
-use Khafidprayoga\PhpMicrosite\Services\UserService;
-use Khafidprayoga\PhpMicrosite\Services\PostService;
-use Khafidprayoga\PhpMicrosite\UseCases\PostServiceImpl;
-use Khafidprayoga\PhpMicrosite\UseCases\UserServiceImpl;
+use Khafidprayoga\PhpMicrosite\Services\ServiceMediatorInterface;
+use Khafidprayoga\PhpMicrosite\Services\UserServiceInterface;
+use Khafidprayoga\PhpMicrosite\Services\PostServiceInterface;
+use Khafidprayoga\PhpMicrosite\Services\ServiceMediator;
+use Khafidprayoga\PhpMicrosite\UseCases\PostServiceInterfaceImpl;
+use Khafidprayoga\PhpMicrosite\UseCases\UserServiceInterfaceImpl;
 use Twig\Environment;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
+
+use function DI\autowire;
+use function DI\create;
+use function DI\get;
+use function DI\value;
 
 class InitController extends Dependency
 {
     private Environment $twig;
-    protected UserService $userService;
+    protected UserServiceInterface $userService;
 
-    protected PostService $postService;
+    protected PostServiceInterface $postService;
 
     public function __construct()
     {
         parent::__construct();
 
-        // providers
-        $twig = TwigEngine::getInstance();
-        $db = Database::getInstance();
-        $entityManager = Database::getEntityManager();
+        $containerBuild = new ContainerBuilder();
+        $containerBuild->useAutowiring(false);
+        $containerBuild->useAttributes(true);
 
-        // mount dependency
-        $this->twig = $twig;
-        $this->userService = new UserServiceImpl($db, $entityManager);
-        $this->postService = new PostServiceImpl($db, $entityManager);
+        // register dependency container
+        $containerBuild->addDefinitions([
+            // Singletons providers
+            TwigEngine::class => value(TwigEngine::getInstance()),
+            Connection::class => value(Database::getInstance()),
+            EntityManager::class => value(Database::getEntityManager()),
+
+            // Services
+            UserServiceInterface::class => autowire(UserServiceInterfaceImpl::class),
+            PostServiceInterface::class => autowire(PostServiceInterfaceImpl::class),
+
+            // Mediator Pool
+            ServiceMediatorInterface::class => autowire(ServiceMediator::class),
+        ]);
+
+        // building container
+        $container = $containerBuild->build();
+
+
+        $mediator = $container->get(ServiceMediatorInterface::class);
+        $this->twig = $container->get(TwigEngine::class);
+        $this->userService = $mediator->get(UserServiceInterface::class);
+        $this->postService = $mediator->get(PostServiceInterface::class);
 
     }
 
