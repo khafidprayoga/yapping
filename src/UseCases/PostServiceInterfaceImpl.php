@@ -35,7 +35,7 @@ class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterfa
         throw new \Exception("Not implemented");
     }
 
-    public function getPostById(int $id): Post
+    public function getPostById(int $id): Post|array
     {
         $post = $this->repo->createQueryBuilder("posts")
             ->addSelect("users")
@@ -43,13 +43,11 @@ class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterfa
             ->where("posts.id = :postId")
             ->setParameter("postId", $id)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getArrayResult();
 
         if (!$post) {
             throw new \Exception("Feed with id {$id} not found");
         }
-        //        TODO LOAD AUTHOR DATA WITH JOIN LIKE PRELOAD
-        $post->getAuthor();
-        return $post;
+        return $post[0];
     }
 }

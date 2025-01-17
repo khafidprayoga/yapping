@@ -5,6 +5,7 @@ namespace Khafidprayoga\PhpMicrosite\Controllers;
 use DI\ContainerBuilder;
 use Khafidprayoga\PhpMicrosite\Commons\Dependency;
 use Khafidprayoga\PhpMicrosite\Providers\Database;
+use Khafidprayoga\PhpMicrosite\Providers\Serializer;
 use Khafidprayoga\PhpMicrosite\Providers\TwigEngine;
 use Khafidprayoga\PhpMicrosite\Services\ServiceMediatorInterface;
 use Khafidprayoga\PhpMicrosite\Services\UserServiceInterface;
@@ -15,10 +16,9 @@ use Khafidprayoga\PhpMicrosite\UseCases\UserServiceInterfaceImpl;
 use Twig\Environment;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\Serializer\Serializer as SymfonySerializer;
 
 use function DI\autowire;
-use function DI\create;
-use function DI\get;
 use function DI\value;
 
 class InitController extends Dependency
@@ -28,6 +28,7 @@ class InitController extends Dependency
 
     protected PostServiceInterface $postService;
     protected EntityManager $entityManager;
+    protected SymfonySerializer $serializer;
 
     public function __construct()
     {
@@ -43,6 +44,7 @@ class InitController extends Dependency
             TwigEngine::class => value(TwigEngine::getInstance()),
             Connection::class => value(Database::getInstance()),
             EntityManager::class => value(Database::getEntityManager()),
+            Serializer::class => value(Serializer::getInstance()),
 
             // Services
             UserServiceInterface::class => autowire(UserServiceInterfaceImpl::class),
@@ -60,6 +62,7 @@ class InitController extends Dependency
 
         $this->twig = $container->get(TwigEngine::class);
         $this->entityManager = $container->get(EntityManager::class);
+        $this->serializer = $container->get(Serializer::class);
         $this->userService = $mediator->get(UserServiceInterface::class);
         $this->postService = $mediator->get(PostServiceInterface::class);
 

@@ -1,6 +1,6 @@
 <html lang="en">
 <head>
-    <title> {{ title }} </title>
+    <title> X Microsite / Feed "{{ post.title }}" </title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
@@ -16,6 +16,17 @@
 </head>
 <body>
 <main class="flex flex-col justify-center items-center mt-[50vh]">
+    <h1 class="font-rasa text-xl">Feed - {{ post.title }}</h1>
+    <p class="font-libreBaskerville">
+        {{ post.content }}
+    </p>
+
+    <p>by {{ post.author.fullName }} at {{ post.createdAt|date }}</p>
+    <div class="flex flex-row font-merriWeather gap-x-3 gap-y-3">
+        <span class="font-rasa text-md mx-2">800 Up vote</span>
+        <span class="font-rasa text-md mx-2">20 Down vote</span>
+    </div>
+
 </main>
 </body>
 </html>

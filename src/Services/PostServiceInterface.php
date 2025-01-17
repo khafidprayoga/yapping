@@ -8,6 +8,6 @@ interface PostServiceInterface
 {
     public function createNewPost(): Post;
 
-    public function getPostById(int $id): Post;
+    public function getPostById(int $id): Post|array;
 
 }

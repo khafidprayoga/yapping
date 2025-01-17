@@ -4,11 +4,12 @@ namespace Khafidprayoga\PhpMicrosite\Providers;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
+use Khafidprayoga\PhpMicrosite\Providers\ProviderInterface;
 
-class Database
+class Database implements ProviderInterface
 {
-    public static ?Connection $db;
-    protected static EntityManager $entityManager;
+    private static ?Connection $db;
+    private static EntityManager $entityManager;
 
 
     public static function getInstance(): Connection

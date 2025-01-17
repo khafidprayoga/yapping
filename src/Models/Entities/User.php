@@ -32,9 +32,4 @@ class User
     #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'user')]
     #[ORM\JoinColumn(name: 'id', referencedColumnName: 'user_id', nullable: false)]
     private Collection $posts;
-
-    public function getPosts(): array
-    {
-        return $this->posts;
-    }
 }

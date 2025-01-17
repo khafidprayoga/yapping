@@ -35,9 +35,5 @@ class Post
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
     private ?User $author;
 
-    public function getAuthor(): User
-    {
-        return $this->author;
-    }
 
 }

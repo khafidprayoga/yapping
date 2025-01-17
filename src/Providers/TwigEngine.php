@@ -2,10 +2,13 @@
 
 namespace Khafidprayoga\PhpMicrosite\Providers;
 
+use Khafidprayoga\PhpMicrosite\Providers\ProviderInterface;
 use Twig\Environment;
+use Twig\Extension\CoreExtension;
+use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 
-class TwigEngine
+class TwigEngine implements ProviderInterface
 {
     private static ?Environment $twig = null;
 
@@ -13,6 +16,14 @@ class TwigEngine
     {
         if (self::$twig == null) {
             self::$twig = new Environment(new FilesystemLoader(APP_ROOT . "/src/Views"), []);
+            self::$twig->addExtension(new DebugExtension());
+            self::$twig->getExtension(CoreExtension::class)
+                ->setTimezone("Asia/Jakarta");
+
+            self::$twig->getExtension(CoreExtension::class)
+                ->setDateFormat("Y-m-d H:i:s");
+            ;
+
         }
 
         return self::$twig;
