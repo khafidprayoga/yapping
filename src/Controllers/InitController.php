@@ -27,6 +27,7 @@ class InitController extends Dependency
     protected UserServiceInterface $userService;
 
     protected PostServiceInterface $postService;
+    protected EntityManager $entityManager;
 
     public function __construct()
     {
@@ -56,7 +57,9 @@ class InitController extends Dependency
 
 
         $mediator = $container->get(ServiceMediatorInterface::class);
+
         $this->twig = $container->get(TwigEngine::class);
+        $this->entityManager = $container->get(EntityManager::class);
         $this->userService = $mediator->get(UserServiceInterface::class);
         $this->postService = $mediator->get(PostServiceInterface::class);
 
@@ -68,5 +71,14 @@ class InitController extends Dependency
         $view = $this->twig->render($templateName, $data);
         echo $view;
 
+    }
+
+    // for reflecting entity model values
+    public function getEntityFieldValue(string $className, object $entity, string $fieldName): mixed
+    {
+        return $this
+            ->entityManager
+            ->getClassMetadata($className)
+            ->getFieldValue($entity, $fieldName);
     }
 }

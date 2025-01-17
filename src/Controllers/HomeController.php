@@ -2,12 +2,12 @@
 
 namespace Khafidprayoga\PhpMicrosite\Controllers;
 
-class Home extends InitController
+class HomeController extends InitController
 {
     public function index(): void
     {
-        $this->render('Home', [
-            "title" => "X Microsite / Home",
+        $this->render('HomeController', [
+            "title" => "X Microsite / HomeController",
             "tagline" => "Welcome to X Microsite",
             "description" => "X is an simple social media platform to demonstrate my experience as backend developer.",
             "cta" => [
