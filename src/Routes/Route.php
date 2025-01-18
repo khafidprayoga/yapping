@@ -22,26 +22,6 @@ class Route extends Dependency
     {
         $routes = require __DIR__ . "/routes.php";
 
-        // server assets
-        $this->router->get("styles.css", function () {
-            $filePath = APP_ROOT . "/src/Views/styles.css"; // Corrected path if needed
-
-            if (file_exists($filePath)) {
-                $content = file_get_contents($filePath);
-                header('Content-Type: text/css');
-                header('Content-Length: ' . filesize($filePath));
-
-
-                echo $content;
-
-            } else {
-                header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
-                echo "CSS file not found.";
-                exit;
-            }
-
-        });
-
         foreach ($routes as $name => $route) {
             if ($route instanceof RouteMap) {
                 $this->router->{$route->getMethod()}($route->getPath(), function (...$args) use ($route) {

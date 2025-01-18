@@ -4,3 +4,4 @@ src/Views/styles.css
 microsite.sqlite
 .idea/
 .php-cs-fixer.cache
+/public
