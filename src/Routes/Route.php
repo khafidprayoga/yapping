@@ -4,7 +4,9 @@ namespace Khafidprayoga\PhpMicrosite\Routes;
 
 use Bramus\Router\Router;
 use Khafidprayoga\PhpMicrosite\Commons\Dependency;
+use Khafidprayoga\PhpMicrosite\Providers\TwigEngine;
 use Khafidprayoga\PhpMicrosite\Views;
+use Symfony\Component\HttpFoundation\Response;
 
 class Route extends Dependency
 {
@@ -36,8 +38,14 @@ class Route extends Dependency
 
         // set not found route
         $this->router->set404(function () {
-            header('HTTP/1.1 404 Not Found');
-            echo Views\Fragment\NotFound::render();
+            $twig = TwigEngine::getInstance();
+            http_response_code(Response::HTTP_NOT_FOUND);
+
+            echo $twig->render("Fragment/Exception.twig", [
+                "error_title" => "Invalid resource",
+                "error_message" => "You are not at the right place.",
+                "menu" => "Resources",
+            ]);
         });
 
     }
