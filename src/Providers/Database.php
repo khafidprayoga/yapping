@@ -4,7 +4,6 @@ namespace Khafidprayoga\PhpMicrosite\Providers;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
-use Khafidprayoga\PhpMicrosite\Providers\ProviderInterface;
 
 class Database implements ProviderInterface
 {

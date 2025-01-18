@@ -4,12 +4,12 @@ namespace Khafidprayoga\PhpMicrosite\Routes;
 
 use Khafidprayoga\PhpMicrosite\Commons\HttpMethod;
 
-class RouteMap
+readonly class RouteMap
 {
     public function __construct(
-        public readonly HttpMethod $method,
-        public readonly string     $path,
-        public readonly array      $handler,
+        public HttpMethod $method,
+        public string     $path,
+        public array      $handler,
     ) {
     }
 

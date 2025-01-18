@@ -13,6 +13,10 @@ use Khafidprayoga\PhpMicrosite\Services\PostServiceInterface;
 use Khafidprayoga\PhpMicrosite\Services\ServiceMediator;
 use Khafidprayoga\PhpMicrosite\UseCases\PostServiceInterfaceImpl;
 use Khafidprayoga\PhpMicrosite\UseCases\UserServiceInterfaceImpl;
+use Nyholm\Psr7\Factory\Psr17Factory;
+use Nyholm\Psr7Server\ServerRequestCreator;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Twig\Environment;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
@@ -24,6 +28,7 @@ use function DI\value;
 class InitController extends Dependency
 {
     private Environment $twig;
+    protected ServerRequestInterface $request;
     protected UserServiceInterface $userService;
 
     protected PostServiceInterface $postService;
@@ -33,6 +38,19 @@ class InitController extends Dependency
     public function __construct()
     {
         parent::__construct();
+
+
+        // add strict type for http request-response lifecycle on the router
+        $psr17Factory = new Psr17Factory();
+        $creator = new ServerRequestCreator(
+            serverRequestFactory: $psr17Factory,
+            uriFactory: $psr17Factory,
+            uploadedFileFactory: $psr17Factory,
+            streamFactory: $psr17Factory,
+        );
+
+        $this->request = $creator->fromGlobals();
+
 
         $containerBuild = new ContainerBuilder();
         $containerBuild->useAutowiring(false);
@@ -68,8 +86,9 @@ class InitController extends Dependency
 
     }
 
-    public function render(string $template, array $data = []): void
+    public function render(string $template, array $data = [], int $statusCode = 200): void
     {
+        http_response_code($statusCode);
         $templateName = $template . ".twig";
         $view = $this->twig->render($templateName, $data);
         echo $view;

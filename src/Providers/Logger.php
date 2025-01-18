@@ -5,7 +5,6 @@ namespace Khafidprayoga\PhpMicrosite\Providers;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger as MonologLogger;
 use Monolog\Level;
-use Khafidprayoga\PhpMicrosite\Providers\ProviderInterface;
 
 class Logger implements ProviderInterface
 {

@@ -17,6 +17,7 @@ class Route extends Dependency
         parent::__construct();
         $this->router = new Router();
 
+
         $this->register();
     }
 
@@ -25,6 +26,7 @@ class Route extends Dependency
         $routes = require __DIR__ . "/routes.php";
 
         foreach ($routes as $name => $route) {
+
             if ($route instanceof RouteMap) {
                 $this->router->{$route->getMethod()}($route->getPath(), function (...$args) use ($route) {
                     $handler = $route->getHandler();
@@ -43,7 +45,7 @@ class Route extends Dependency
 
             echo $twig->render("Fragment/Exception.twig", [
                 "error_title" => "Invalid resource",
-                "error_message" => "You are not at the right place.",
+                "error_message" => "You are not in the right place. If something is missing, please kindly check the URL.",
                 "menu" => "Resources",
             ]);
         });

@@ -2,7 +2,6 @@
 
 namespace Khafidprayoga\PhpMicrosite\Providers;
 
-use Khafidprayoga\PhpMicrosite\Providers\ProviderInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer as SymfonySerializer;

@@ -2,7 +2,6 @@
 
 namespace Khafidprayoga\PhpMicrosite\Providers;
 
-use Khafidprayoga\PhpMicrosite\Providers\ProviderInterface;
 use Twig\Environment;
 use Twig\Extension\CoreExtension;
 use Twig\Extension\DebugExtension;
