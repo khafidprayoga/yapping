@@ -1,0 +1,51 @@
+<html lang="en">
+<head>
+    <title> X Microsite / Feeds Homepage" </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/public/css/styles.min.css">
+
+
+    <!--  fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Merriweather+Sans:ital,wght@0,300..800;1,300..800&family=Rasa:ital,wght@0,300..700;1,300..700&display=swap"
+          rel="stylesheet">
+    <!--  fonts -->
+
+</head>
+<body>
+<h1 class="text-blue-700 text-3xl font-libreBaskerville font-[500] text-center mt-5">X Microsite / Feeds</h1>
+
+<main class="flex flex-col justify-center items-center mx-auto h-screen">
+    {% if posts is not empty %}
+        {% for post in posts %}
+            <div class="flex flex-col justify-center items-center w-[520px] border border-gray-900 px-5 py-5">
+
+                <h2 class="font-rasa text-xl mt-5">{{ post.title }}</h2>
+
+                <p class="font-libreBaskerville py-5">
+                    {{ post.content|nl2br }}
+                </p>
+
+                <p>by {{ post.author.fullName }} at {{ post.createdAt|date }}</p>
+                <div id="posts-{{ post.id }}">
+                    <div class="flex flex-row font-merriWeather gap-x-3 gap-y-3">
+                        <span class="font-rasa text-md mx-2">800 Up vote</span>
+                        <span class="font-rasa text-md mx-2">20 Down vote</span>
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+    {% else %}
+        <div class="flex flex-col justify-center items-center w-[320px]">
+            <h2 class="font-rasa text-xl">No posts yet</h2>
+        </div>
+
+    {% endif %}
+
+</main>
+</body>
+</html>

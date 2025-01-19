@@ -11,6 +11,8 @@ use Khafidprayoga\PhpMicrosite\Models\Entities\Post;
 use Khafidprayoga\PhpMicrosite\Services\PostServiceInterface;
 use Khafidprayoga\PhpMicrosite\Services\ServiceMediatorInterface;
 use Khafidprayoga\PhpMicrosite\Services\UserServiceInterface;
+use Exception;
+use Khafidprayoga\PhpMicrosite\Utils\Pagination;
 
 #[Injectable(lazy: true)]
 class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterface
@@ -29,13 +31,19 @@ class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterfa
         $this->repo = $this->entityManager->getRepository(Post::class);
     }
 
+    /**
+     * @throws Exception
+     */
     public function createNewPost(): Post
     {
         // TODO: Implement createNewPost() method.
-        throw new \Exception("Not implemented");
+        throw new Exception("Not implemented");
     }
 
-    public function getPostById(int $id): Post|array
+    /**
+     * @throws Exception
+     */
+    public function getPostById(int $id): array
     {
         $post = $this->repo->createQueryBuilder("posts")
             ->addSelect("users")
@@ -46,8 +54,35 @@ class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterfa
             ->getArrayResult();
 
         if (!$post) {
-            throw new \Exception("Feed with id {$id} not found");
+            throw  new Exception("Feed with id $id not found");
         }
         return $post[0];
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getPosts(Pagination $pagination): array
+    {
+        $query = $this->repo
+            ->createQueryBuilder("posts")
+            ->addSelect("users")
+            ->innerJoin("posts.author", "users")
+            ->where("posts.isDeleted = :isDeleted");
+
+        if ($pagination->isContainsSearch()) {
+            $search = $pagination->getSearch();
+            $query
+                ->where("posts.title LIKE :search OR posts.content LIKE :search")
+                ->setParameter("search", "%$search%");
+        }
+
+        $query = $query
+            ->setParameter("isDeleted", false)
+            ->setFirstResult($pagination->getOffset())
+            ->setMaxResults($pagination->getPageSize())
+            ->getQuery();
+
+        return $query->getArrayResult();
     }
 }

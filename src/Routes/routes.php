@@ -21,6 +21,11 @@ $routes = array(
         method: HttpMethod::GET,
         path: "/feeds/([0-9]+)",
         handler: [Controllers\PostController::class, 'actionGetUserById']
+    ),
+    "GetFeeds" => new RouteMap(
+        method: HttpMethod::GET,
+        path: "/feeds/",
+        handler: [Controllers\PostController::class, 'index']
     )
 );
 
