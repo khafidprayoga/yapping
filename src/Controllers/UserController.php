@@ -2,16 +2,27 @@
 
 namespace Khafidprayoga\PhpMicrosite\Controllers;
 
+use Khafidprayoga\PhpMicrosite\Models\DTO\UserDTO;
+use Khafidprayoga\PhpMicrosite\Utils\Pagination;
+use Symfony\Component\HttpFoundation\Response;
+
 class UserController extends InitController
 {
     public function actionCreateUser(): void
     {
-        // validate request
+        try {
+            $jsonBody = $this->getJsonBody();
+            $request = new UserDTO($jsonBody);
 
-        // checks if username exist
-        $this->userService->getUserByUsername();
-        // todo create user
-        $this->userService->createUser();
+            $user = $this->userService->createUser($request);
+            var_dump($user);
+        } catch (Exception $exception) {
+            $this->render("Fragment/Exception", [
+                "error_title" => "Get Feeds error",
+                "error_message" => $exception->getMessage(),
+                "menu" => "Feed",
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function index()

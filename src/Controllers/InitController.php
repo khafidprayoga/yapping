@@ -15,7 +15,6 @@ use Khafidprayoga\PhpMicrosite\UseCases\PostServiceInterfaceImpl;
 use Khafidprayoga\PhpMicrosite\UseCases\UserServiceInterfaceImpl;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Twig\Environment;
 use Doctrine\DBAL\Connection;
@@ -95,12 +94,9 @@ class InitController extends Dependency
 
     }
 
-    // for reflecting entity model values
-    public function getEntityFieldValue(string $className, object $entity, string $fieldName): mixed
+    protected function getJsonBody(): array
     {
-        return $this
-            ->entityManager
-            ->getClassMetadata($className)
-            ->getFieldValue($entity, $fieldName);
+        $body = (string) $this->request->getBody();
+        return json_decode($body, true);
     }
 }

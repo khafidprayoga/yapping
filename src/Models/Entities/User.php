@@ -4,6 +4,7 @@ namespace Khafidprayoga\PhpMicrosite\Models\Entities;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'users')]
