@@ -13,5 +13,5 @@ interface AuthServiceInterface
 
     public function logout(string $jwtToken): bool;
 
-    public function refresh(RefreshSessionRequestDTO $req): string;
+    public function refresh(RefreshSessionRequestDTO $req): TokenDTO;
 }

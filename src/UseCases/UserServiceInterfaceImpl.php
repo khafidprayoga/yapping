@@ -57,7 +57,11 @@ SQL;
 
     public function getUserById(int $userId): array
     {
-        return [];
+        return $this->repo->createQueryBuilder("users")
+            ->where("users.id = :userId")
+            ->setParameter("userId", $userId)
+            ->getQuery()
+            ->getArrayResult();
     }
 
     public function getUserByUsername(string $username): array

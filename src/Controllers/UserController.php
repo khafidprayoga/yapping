@@ -57,7 +57,8 @@ class UserController extends InitController
             $jsonBody = $this->getJsonBody();
             $request = new RefreshSessionRequestDTO($jsonBody);
 
-            $this->authService->refresh($request);
+            $token = $this->authService->refresh($request);
+            $this->responseJson(null, $token, Response::HTTP_OK);
         } catch (HttpException $err) {
             $this->responseJson($err, null, Response::HTTP_INTERNAL_SERVER_ERROR);
         }

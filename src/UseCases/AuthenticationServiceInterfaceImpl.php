@@ -6,19 +6,21 @@ use DI\Attribute\Inject;
 use DI\Attribute\Injectable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
-use Exception;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
+use Exception;
+use Firebase\JWT\BeforeValidException;
+use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Khafidprayoga\PhpMicrosite\Commons\AppMode;
+use Khafidprayoga\PhpMicrosite\Models\DTO\JwtClaimsDTO;
 use Khafidprayoga\PhpMicrosite\Models\DTO\RefreshSessionRequestDTO;
 use Khafidprayoga\PhpMicrosite\Models\DTO\TokenDTO;
-use Khafidprayoga\PhpMicrosite\Models\Entities;
+use Khafidprayoga\PhpMicrosite\Models\Entities\Session;
 use Khafidprayoga\PhpMicrosite\Services\AuthServiceInterface;
 use Khafidprayoga\PhpMicrosite\Services\ServiceMediatorInterface;
 use Khafidprayoga\PhpMicrosite\Services\UserServiceInterface;
-use stdClass;
 use Symfony\Component\HttpFoundation\Response;
 use Carbon\Carbon;
 use Khafidprayoga\PhpMicrosite\Commons\HttpException;
@@ -27,6 +29,7 @@ use Khafidprayoga\PhpMicrosite\Commons\HttpException;
 class AuthenticationServiceInterfaceImpl extends InitUseCase implements AuthServiceInterface
 {
     private const int accessTokenExpiresInHours = 5;
+    private const int refreshTokenAllowUsageInHours = 3;
     private const int refreshTokenExpiresInDays = 7;
     #[Inject]
     private readonly UserServiceInterface $userService;
@@ -40,7 +43,7 @@ class AuthenticationServiceInterfaceImpl extends InitUseCase implements AuthServ
         $entityManager = $mediator->get(EntityManager::class);
         parent::__construct($db, $entityManager);
 
-        $this->repo = $this->entityManager->getRepository(Entities\Session::class);
+        $this->repo = $this->entityManager->getRepository(Session::class);
 
         $this->jwtSecret = APP_CONFIG->providers->jwt->secretKey;
     }
@@ -81,7 +84,7 @@ class AuthenticationServiceInterfaceImpl extends InitUseCase implements AuthServ
     }
 
     /**
-     * @throws HttpException|Exception|DBALException
+     * @throws HttpException|DBALException
      */
     private function generateJwtToken(array $user): TokenDTO
     {
@@ -147,7 +150,7 @@ SQL;
         ];
 
         if (APP_CONFIG->appMode === AppMode::PRODUCTION) {
-            $payload['nbf'] = Carbon::now()->addHours(1)->timestamp;
+            $payload['nbf'] = Carbon::now()->addHours(self::refreshTokenAllowUsageInHours)->timestamp;
         }
 
         $encoded = JWT::encode(
@@ -162,15 +165,50 @@ SQL;
         ];
     }
 
-    public function refresh(RefreshSessionRequestDTO $request): string
+
+    /**
+     * @throws HttpException|BeforeValidException
+     */
+    public function refresh(RefreshSessionRequestDTO $request): TokenDTO
     {
-        $decoded = $this->decode($request->getRefreshToken());
-        var_dump($decoded);
-        return '';
+        try {
+            $claims = $this->decode($request->getRefreshToken());
+
+            // get user data
+            $user = $this->userService->getUserById($claims->getUserId());
+            if (!$user) {
+                throw new HttpException("failed generate access token", code: Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
+            $user = $user[0];
+            $accessToken = $this->generateAccessToken($claims->getUserId(), $user['fullName']);
+            return new TokenDTO(accessToken: $accessToken);
+        } catch (BeforeValidException $err) {
+            throw new HttpException("can not yet use this refresh token", code: Response::HTTP_BAD_REQUEST);
+        } catch (ExpiredException $err) {
+            $refreshToken = $request->getRefreshToken();
+
+            //  revoke the refresh token
+            $setRevokeQuery = $this->repo->createQueryBuilder('sessions')
+                ->update(Session::class, 's')
+                ->set('s.isRevoked', true)
+                ->where('s.refreshToken = :refreshToken')
+                ->setParameter('refreshToken', $refreshToken)
+                ->getQuery();
+
+            $setRevokeQuery->execute();
+            throw new HttpException("can not use this refresh token, token expired", code: Response::HTTP_UNAUTHORIZED);
+        } catch (DBALException $err) {
+            throw new HttpException(
+                'refresh token revoked please do authentication flow again',
+                code: Response::HTTP_INTERNAL_SERVER_ERROR,
+            );
+        }
     }
 
-    private function decode(string $token): stdClass
+    private function decode(string $token): JwtClaimsDTO
     {
-        return JWT::decode($token, new Key($this->jwtSecret, 'HS256'));
+        $decoded = (array)JWT::decode($token, new Key($this->jwtSecret, 'HS256'));
+        return new JwtClaimsDTO($decoded);
     }
 }
