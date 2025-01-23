@@ -12,7 +12,7 @@ class Post
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id', type: Types::INTEGER)]
-    private int|null $id;
+    private int $id;
     #[ORM\Column(name: 'title', type: Types::STRING, length: 255)]
     private string $title;
 
