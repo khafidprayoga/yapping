@@ -4,13 +4,16 @@ namespace Khafidprayoga\PhpMicrosite\Controllers;
 
 use DI\ContainerBuilder;
 use Khafidprayoga\PhpMicrosite\Commons\Dependency;
+use Khafidprayoga\PhpMicrosite\Commons\HttpException;
 use Khafidprayoga\PhpMicrosite\Providers\Database;
 use Khafidprayoga\PhpMicrosite\Providers\Serializer;
 use Khafidprayoga\PhpMicrosite\Providers\TwigEngine;
+use Khafidprayoga\PhpMicrosite\Services\AuthServiceInterface;
 use Khafidprayoga\PhpMicrosite\Services\ServiceMediatorInterface;
 use Khafidprayoga\PhpMicrosite\Services\UserServiceInterface;
 use Khafidprayoga\PhpMicrosite\Services\PostServiceInterface;
 use Khafidprayoga\PhpMicrosite\Services\ServiceMediator;
+use Khafidprayoga\PhpMicrosite\UseCases\AuthenticationServiceInterfaceImpl;
 use Khafidprayoga\PhpMicrosite\UseCases\PostServiceInterfaceImpl;
 use Khafidprayoga\PhpMicrosite\UseCases\UserServiceInterfaceImpl;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -31,6 +34,7 @@ class InitController extends Dependency
     protected UserServiceInterface $userService;
 
     protected PostServiceInterface $postService;
+    protected AuthServiceInterface $authService;
     protected EntityManager $entityManager;
     protected SymfonySerializer $serializer;
 
@@ -61,11 +65,12 @@ class InitController extends Dependency
             TwigEngine::class => value(TwigEngine::getInstance()),
             Connection::class => value(Database::getInstance()),
             EntityManager::class => value(Database::getEntityManager()),
-            Serializer::class => value(Serializer::getInstance()),
+            SymfonySerializer::class => value(Serializer::getInstance()),
 
             // Services
             UserServiceInterface::class => autowire(UserServiceInterfaceImpl::class),
             PostServiceInterface::class => autowire(PostServiceInterfaceImpl::class),
+            AuthServiceInterface::class => autowire(AuthenticationServiceInterfaceImpl::class),
 
             // Mediator Pool
             ServiceMediatorInterface::class => autowire(ServiceMediator::class),
@@ -79,9 +84,10 @@ class InitController extends Dependency
 
         $this->twig = $container->get(TwigEngine::class);
         $this->entityManager = $container->get(EntityManager::class);
-        $this->serializer = $container->get(Serializer::class);
+        $this->serializer = $container->get(SymfonySerializer::class);
         $this->userService = $mediator->get(UserServiceInterface::class);
         $this->postService = $mediator->get(PostServiceInterface::class);
+        $this->authService = $mediator->get(AuthServiceInterface::class);
 
     }
 
@@ -96,7 +102,31 @@ class InitController extends Dependency
 
     protected function getJsonBody(): array
     {
-        $body = (string) $this->request->getBody();
+        $body = (string)$this->request->getBody();
         return json_decode($body, true);
+    }
+
+    protected function responseJson(?HttpException $err, mixed $data, ?int $statusCode = 200): void
+    {
+
+        header('Content-Type: application/json');
+
+        $response = [];
+        if (isset($err)) {
+            $response['statusCode'] = $err->getCode();
+            $response['status'] = 'ERROR';
+            $response['error_message'] = $err->getMessage();
+            $response['data'] = [];
+
+            $statusCode = $err->getCode();
+        } else {
+            $response['statusCode'] = $statusCode;
+            $response['status'] = 'SUCCESS';
+            $response['data'] = $data;
+        }
+
+        http_response_code($statusCode);
+        echo $this->serializer->serialize($response, 'json');
+        exit;
     }
 }

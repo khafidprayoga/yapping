@@ -31,6 +31,11 @@ $routes = array(
         method: HttpMethod::POST,
         path: "/users/register",
         handler: [Controllers\UserController::class, 'actionCreateUser']
+    ),
+    "Login" => new RouteMap(
+        method: HttpMethod::POST,
+        path: "/users/login",
+        handler: [Controllers\UserController::class, 'actionAuthenticate']
     )
 );
 

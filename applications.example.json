@@ -1,0 +1,12 @@
+{
+  "appName": "X Microsite",
+  "appMode": "DEVELOPMENT",
+  "Providers": {
+    "Jwt": {
+      "secretKey": ""
+    },
+    "Logger": {
+      "level": "Debug"
+    }
+  }
+}

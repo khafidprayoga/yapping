@@ -15,8 +15,9 @@ class Logger implements ProviderInterface
         if (self::$logger == null) {
             self::$logger = new MonologLogger('X MicroSite Logger');
 
+            $logLevel = Level::fromName(APP_CONFIG->providers->logger->level);
             self::$logger->pushHandler(
-                new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, Level::Debug)
+                new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, $logLevel)
             );
 
         }

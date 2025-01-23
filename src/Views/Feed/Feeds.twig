@@ -30,12 +30,12 @@
                 </p>
 
                 <p>by {{ post.author.fullName }} at {{ post.createdAt|date }}</p>
-                <div id="posts-{{ post.id }}">
-                    <div class="flex flex-row font-merriWeather gap-x-3 gap-y-3">
-                        <span class="font-rasa text-md mx-2">800 Up vote</span>
-                        <span class="font-rasa text-md mx-2">20 Down vote</span>
-                    </div>
-                </div>
+{#                <div id="posts-{{ post.id }}">#}
+{#                    <div class="flex flex-row font-merriWeather gap-x-3 gap-y-3">#}
+{#                        <span class="font-rasa text-md mx-2">800 Up vote</span>#}
+{#                        <span class="font-rasa text-md mx-2">20 Down vote</span>#}
+{#                    </div>#}
+{#                </div>#}
             </div>
 
         {% endfor %}

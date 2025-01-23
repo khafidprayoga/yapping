@@ -62,8 +62,11 @@ SQL;
 
     public function getUserByUsername(string $username): array
     {
-        return $this->repo->findBy(['username' => $username]);
-
+        return $this->repo->createQueryBuilder("users")
+            ->where("users.username = :username")
+            ->setParameter("username", $username)
+            ->getQuery()
+            ->getArrayResult();
     }
 
     public function getPosts(int $userId): ?array

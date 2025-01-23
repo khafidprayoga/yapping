@@ -5,3 +5,4 @@ microsite.sqlite
 .idea/
 .php-cs-fixer.cache
 /public
+applications.json

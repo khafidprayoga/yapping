@@ -7,12 +7,14 @@ use DI\Attribute\Injectable;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
+use Khafidprayoga\PhpMicrosite\Commons\HttpException;
 use Khafidprayoga\PhpMicrosite\Models\Entities\Post;
 use Khafidprayoga\PhpMicrosite\Services\PostServiceInterface;
 use Khafidprayoga\PhpMicrosite\Services\ServiceMediatorInterface;
 use Khafidprayoga\PhpMicrosite\Services\UserServiceInterface;
 use Exception;
 use Khafidprayoga\PhpMicrosite\Utils\Pagination;
+use Symfony\Component\HttpFoundation\Response;
 
 #[Injectable(lazy: true)]
 class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterface
@@ -41,7 +43,7 @@ class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterfa
     }
 
     /**
-     * @throws Exception
+     * @throws HttpException
      */
     public function getPostById(int $id): array
     {
@@ -54,14 +56,13 @@ class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterfa
             ->getArrayResult();
 
         if (!$post) {
-            throw  new Exception("Feed with id $id not found");
+            throw  new HttpException("Feed with id $id not found", Response::HTTP_NOT_FOUND);
         }
+
         return $post[0];
     }
 
-    /**
-     * @throws Exception
-     */
+
     public function getPosts(Pagination $pagination): array
     {
         $query = $this->repo

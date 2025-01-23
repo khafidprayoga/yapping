@@ -2,6 +2,7 @@
 
 namespace Khafidprayoga\PhpMicrosite\Providers;
 
+use Khafidprayoga\PhpMicrosite\Utils\AppConfigParser;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer as SymfonySerializer;
@@ -15,7 +16,9 @@ class Serializer implements ProviderInterface
         if (is_null(self::$serializer)) {
 
             $encoder = [new JsonEncoder()];
-            $normalizer = [new ObjectNormalizer()];
+            $normalizer = [
+                new ObjectNormalizer(),
+            ];
             $serializer = new SymfonySerializer($normalizer, $encoder);
 
             self::$serializer = $serializer;

@@ -4,16 +4,15 @@ namespace Khafidprayoga\PhpMicrosite\Models\DTO;
 
 use Valitron\Validator;
 
-class UserDTO
+class AuthenticateDTO
 {
-    public string $fullName;
-    public string $username;
-    public string $password;
+    private string $username;
+    private string $password;
 
     public function __construct(array $requestData)
     {
         $validator = new Validator($requestData);
-        $validator->rule('required', ['full_name', 'username', 'password']);
+        $validator->rule('required', ['username', 'password']);
         $validator->rule('alphaNum', 'username');
 
         $validator
@@ -24,8 +23,16 @@ class UserDTO
             ->rule('regex', 'password', '/\d/')     // Must contain at least one number
             ->rule('regex', 'password', '/[@$!%*?&]/'); // Must contain at least one special character
 
-        $this->fullName = $requestData['full_name'];
         $this->username = $requestData['username'];
         $this->password = $requestData['password'];
+    }
+    public function getUsername(): string
+    {
+        return $this->username;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->password;
     }
 }

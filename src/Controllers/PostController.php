@@ -3,6 +3,7 @@
 namespace Khafidprayoga\PhpMicrosite\Controllers;
 
 use Exception;
+use Khafidprayoga\PhpMicrosite\Commons\HttpException;
 use Khafidprayoga\PhpMicrosite\Utils\Pagination;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -23,7 +24,7 @@ class PostController extends InitController
                 "Feed/Feeds",
                 ["posts" => $posts,],
             );
-        } catch (Exception $exception) {
+        } catch (HttpException $exception) {
             $this->render("Fragment/Exception", [
                 "error_title" => "Get Feeds error",
                 "error_message" => $exception->getMessage(),
@@ -42,7 +43,7 @@ class PostController extends InitController
                     "post" => $post
                 ],
             );
-        } catch (Exception $exception) {
+        } catch (HttpException $exception) {
             $this->render("Fragment/Exception", [
                 "error_title" => "Failed get feed",
                 "error_message" => $exception->getMessage(),
