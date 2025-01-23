@@ -36,6 +36,11 @@ $routes = array(
         method: HttpMethod::POST,
         path: "/users/login",
         handler: [Controllers\UserController::class, 'actionAuthenticate']
+    ),
+    "RevalidateSession" => new RouteMap(
+        method: HttpMethod::POST,
+        path: "/users/refresh_token",
+        handler: [Controllers\UserController::class, 'revalidateToken']
     )
 );
 

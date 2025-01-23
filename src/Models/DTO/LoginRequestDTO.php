@@ -4,7 +4,7 @@ namespace Khafidprayoga\PhpMicrosite\Models\DTO;
 
 use Valitron\Validator;
 
-class AuthenticateDTO
+class LoginRequestDTO
 {
     private string $username;
     private string $password;

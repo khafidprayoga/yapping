@@ -10,11 +10,15 @@ use Exception;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Khafidprayoga\PhpMicrosite\Commons\AppMode;
+use Khafidprayoga\PhpMicrosite\Models\DTO\RefreshSessionRequestDTO;
 use Khafidprayoga\PhpMicrosite\Models\DTO\TokenDTO;
 use Khafidprayoga\PhpMicrosite\Models\Entities;
 use Khafidprayoga\PhpMicrosite\Services\AuthServiceInterface;
 use Khafidprayoga\PhpMicrosite\Services\ServiceMediatorInterface;
 use Khafidprayoga\PhpMicrosite\Services\UserServiceInterface;
+use stdClass;
 use Symfony\Component\HttpFoundation\Response;
 use Carbon\Carbon;
 use Khafidprayoga\PhpMicrosite\Commons\HttpException;
@@ -82,19 +86,14 @@ class AuthenticationServiceInterfaceImpl extends InitUseCase implements AuthServ
     private function generateJwtToken(array $user): TokenDTO
     {
         try {
-            $now = Carbon::now();
-
             $accessToken = $this->generateAccessToken(
-                now: $now,
                 userId: $user['id'],
                 fullName: $user['fullName'],
             );
 
             $jti = bin2hex(random_bytes(16));
 
-            $expiresAt = $now->addDays(self::refreshTokenExpiresInDays);
-            $refreshToken = $this->generateRefreshToken(
-                now: $now,
+            $refreshTokenPair = $this->generateRefreshToken(
                 userId: $user['id'],
                 jti: $jti,
             );
@@ -102,18 +101,17 @@ class AuthenticationServiceInterfaceImpl extends InitUseCase implements AuthServ
             // save refresh token
             $dql = <<<SQL
         INSERT 
-            INTO sessions (jti,refresh_token,created_at, expires_at) 
-        VALUES (:jti, :refresh_token, :created_at, :expires_at)
+            INTO sessions (jti,refresh_token, expires_at) 
+        VALUES (:jti, :refresh_token, :expires_at)
 SQL;
 
             $query = $this->entityManager->getConnection()->prepare($dql);
             $query->bindValue('jti', $jti);
-            $query->bindValue('refresh_token', $refreshToken);
-            $query->bindValue('created_at', $now);
-            $query->bindValue('expires_at', $expiresAt);
+            $query->bindValue('refresh_token', $refreshTokenPair['token']);
+            $query->bindValue('expires_at', $refreshTokenPair['expiresAt']);
 
             $query->executeQuery();
-            return new TokenDTO($accessToken, $refreshToken);
+            return new TokenDTO($accessToken, $refreshTokenPair['token']);
 
         } catch (Exception $err) {
             $this->log->error('failed to insert jwt refresh token session', $err->getMessage());
@@ -121,14 +119,14 @@ SQL;
         }
     }
 
-    private function generateAccessToken(Carbon $now, int $userId, string $fullName): string
+    private function generateAccessToken(int $userId, string $fullName): string
     {
 
         return JWT::encode(
             payload: [
-                'iat' => $now->timestamp,
+                'iat' => Carbon::now()->timestamp,
                 'sub' => $userId,
-                'exp' => $now->addHours(self::accessTokenExpiresInHours)->timestamp,
+                'exp' => Carbon::now()->addHours(self::accessTokenExpiresInHours)->timestamp,
                 'name' => $fullName,
             ],
             key: $this->jwtSecret,
@@ -136,31 +134,43 @@ SQL;
         );
     }
 
-    private function generateRefreshToken(Carbon $now, int $userId, string $jti): string
+    private function generateRefreshToken(int $userId, string $jti): array
     {
 
-        return JWT::encode(
-            payload: [
-                'iat' => $now->timestamp,
-                'sub' => $userId,
-                'exp' => $now->addDays(self::refreshTokenExpiresInDays)->timestamp,
-                'jti' => $jti,
-            ],
+        $expiresAt = Carbon::now()->addDays(self::refreshTokenExpiresInDays);
+
+        $payload = [
+            'iat' => Carbon::now()->timestamp,
+            'sub' => $userId,
+            'exp' => $expiresAt->timestamp,
+            'jti' => $jti,
+        ];
+
+        if (APP_CONFIG->appMode === AppMode::PRODUCTION) {
+            $payload['nbf'] = Carbon::now()->addHours(1)->timestamp;
+        }
+
+        $encoded = JWT::encode(
+            payload: $payload,
             key: $this->jwtSecret,
             alg: 'HS256'
         );
 
+        return [
+            "token" => $encoded,
+            "expiresAt" => $expiresAt,
+        ];
     }
 
-    public function refresh(string $refreshToken): string
+    public function refresh(RefreshSessionRequestDTO $request): string
     {
-
-        // TODO: Implement refresh() method.
+        $decoded = $this->decode($request->getRefreshToken());
+        var_dump($decoded);
         return '';
     }
 
-    public function revalidate(string $token): void
+    private function decode(string $token): stdClass
     {
-
+        return JWT::decode($token, new Key($this->jwtSecret, 'HS256'));
     }
 }

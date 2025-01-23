@@ -4,7 +4,8 @@ namespace Khafidprayoga\PhpMicrosite\Controllers;
 
 use Doctrine\DBAL\Exception;
 use Khafidprayoga\PhpMicrosite\Commons\HttpException;
-use Khafidprayoga\PhpMicrosite\Models\DTO\AuthenticateDTO;
+use Khafidprayoga\PhpMicrosite\Models\DTO\LoginRequestDTO;
+use Khafidprayoga\PhpMicrosite\Models\DTO\RefreshSessionRequestDTO;
 use Khafidprayoga\PhpMicrosite\Models\DTO\UserDTO;
 use Khafidprayoga\PhpMicrosite\Utils\Pagination;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,11 +37,27 @@ class UserController extends InitController
     {
         try {
             $jsonBody = $this->getJsonBody();
-            $request = new AuthenticateDTO($jsonBody);
+            $request = new LoginRequestDTO($jsonBody);
 
             $credentials = $this->authService->login($request->getUsername(), $request->getPassword());
 
             $this->responseJson(null, $credentials, Response::HTTP_OK);
+        } catch (HttpException $err) {
+            $this->responseJson($err, null, Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function actionLogout(): void
+    {
+    }
+
+    public function revalidateToken(): void
+    {
+        try {
+            $jsonBody = $this->getJsonBody();
+            $request = new RefreshSessionRequestDTO($jsonBody);
+
+            $this->authService->refresh($request);
         } catch (HttpException $err) {
             $this->responseJson($err, null, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
