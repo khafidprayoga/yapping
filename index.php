@@ -62,7 +62,7 @@ if ($appConf->appMode === AppMode::DEVELOPMENT) {
 // silent error on the browser, only show in cli
 if ($appConf->appMode === AppMode::PRODUCTION) {
     ini_set('display_errors', "Off");
-    ini_set("date.timezone", "Asia/Jakarta");
+    ini_set("date.timezone", $appConf->serverTimeZone);
 }
 
 $route = new Route();

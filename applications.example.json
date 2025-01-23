@@ -8,5 +8,6 @@
     "Logger": {
       "level": "Debug"
     }
-  }
+  },
+  "serverTimeZone": "Asia/Jakarta"
 }
