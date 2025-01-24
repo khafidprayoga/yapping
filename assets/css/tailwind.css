@@ -1,24 +1,29 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme{
+    --font-libreBaskerville: "Libre Baskerville", serif;
+    --font-merriWeather: "Merriweather Sans", sans-serif;
+    --font-rasa: 'Rasa', serif;
+}
 
 @layer components {
-    #cta-menu-onboarding{
+    #cta-menu-onboarding {
         @apply flex flex-row items-center justify-center text-lg;
     }
 
-    #cta-menu-onboarding  * {
+    #cta-menu-onboarding * {
         /*border: 1px solid red;*/
     }
 
-    #cta-menu-onboarding  li {
+    #cta-menu-onboarding li {
         @apply mx-3
     }
-    #cta-menu-onboarding  a {
+
+    #cta-menu-onboarding a {
         @apply w-6 font-medium py-2 px-2 font-normal decoration-2;
     }
 
-    #cta-menu-onboarding > li > a:hover{
+    #cta-menu-onboarding > li > a:hover {
         @apply underline underline-offset-4 border-dotted border-current font-semibold  decoration-4 transition-all duration-200;
     }
 }

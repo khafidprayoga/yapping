@@ -16,31 +16,43 @@
 
 </head>
 <body>
-<h1 class="text-blue-700 text-3xl font-libreBaskerville font-[500] text-center mt-5">X Microsite / Feeds</h1>
-
+{% include "Partials/NavHeader.twig" with{greet: greet, menu: 'Feeds'} %}
 <main class="flex flex-col justify-center items-center mx-auto h-screen">
     {% if posts is not empty %}
-        {% for post in posts %}
-            <div class="flex flex-col justify-center items-center w-[520px] border border-gray-900 px-5 py-5">
+        <div class="grid grid-cols-1 gap-6 p-6">
+            {% for post in posts %}
+                <a href="/feeds/{{ post.id }}" class="block">
+                    <div class="hover:cursor-pointer flex flex-col justify-center items-center w-full max-w-[720px] border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 px-6 py-6 bg-white">
 
-                <h2 class="font-rasa text-xl mt-5">{{ post.title }}</h2>
+                        {# Post Title #}
+                        <h2 class="font-merriWeather text-2xl font-bold text-gray-900 mt-5 text-center">
+                            {{ post.title }}
+                        </h2>
 
-                <p class="font-libreBaskerville py-5">
-                    {{ post.content|nl2br }}
-                </p>
+                        {# Post Content #}
+                        <p class="font-rasa text-gray-700 py-5 text-center leading-relaxed">
+                            {{ post.content|nl2br }}
+                        </p>
 
-                <p>by {{ post.author.fullName }} at {{ post.createdAt|date }}</p>
-{#                <div id="posts-{{ post.id }}">#}
-{#                    <div class="flex flex-row font-merriWeather gap-x-3 gap-y-3">#}
-{#                        <span class="font-rasa text-md mx-2">800 Up vote</span>#}
-{#                        <span class="font-rasa text-md mx-2">20 Down vote</span>#}
-{#                    </div>#}
-{#                </div>#}
-            </div>
+                        {# Author and Date #}
+                        <p class="text-sm text-gray-500 italic font-libreBaskerville">
+                            by {{ post.author.fullName }} at {{ post.createdAt|ago }}
+                        </p>
 
-        {% endfor %}
+                        {# Upvote and Downvote Section (Commented Out) #}
+                        {# <div id="posts-{{ post.id }}" class="mt-4">
+                    <div class="flex flex-row font-merriWeather gap-x-3 gap-y-3">
+                            <span class="font-rasa text-md mx-2">800 Up vote</span>
+                           <span class="font-rasa text-md mx-2">20 Down vote</span>
+                    </div>
+                    </div> #}
+                    </div>
+                </a>
+
+            {% endfor %}
+        </div>
     {% else %}
-        <div class="flex flex-col justify-center items-center w-[320px]">
+        <div class="flex flex-col justify-center items-center w-full max-w-[720px]">
             <h2 class="font-rasa text-xl">No posts yet</h2>
         </div>
 

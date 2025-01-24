@@ -57,7 +57,7 @@ class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterfa
             ->getArrayResult();
 
         if (!$post) {
-            throw  new HttpException("Feed with id $id not found", Response::HTTP_NOT_FOUND);
+            throw  new HttpException("Feed with id $id not found or has been deleted", Response::HTTP_NOT_FOUND);
         }
 
         return $post[0];

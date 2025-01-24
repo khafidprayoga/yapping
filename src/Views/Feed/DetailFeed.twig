@@ -16,23 +16,22 @@
 
 </head>
 <body>
-<h1 class="text-blue-700 text-3xl font-libreBaskerville font-[500] text-center mt-5">X Microsite / Feed</h1>
+{% include "Partials/NavHeader.twig" with{greet: greet, menu: 'Feed'} %}
 
 <main class="flex flex-col justify-center items-center mx-auto h-screen">
-    <p>Hello {{ claims.userFullName }}</p>
-    <div class="flex flex-col justify-center items-center w-[320px]">
+    <div class="flex flex-col justify-center items-center w-[720px]">
 
-        <h2 class="font-rasa text-xl">"{{ post.title }}"</h2>
+        <h2 class="font-merriWeather font-semibold text-2xl">{{ post.title }}</h2>
 
-        <p class="font-libreBaskerville py-5">
+        <p class="font-rasa py-5 text-lg">
             {{ post.content|nl2br }}
         </p>
 
-        <p>by {{ post.author.fullName }} at {{ post.createdAt|date }}</p>
-{#        <div class="flex flex-row font-merriWeather gap-x-3 gap-y-3">#}
-{#            <span class="font-rasa text-md mx-2">800 Up vote</span>#}
-{#            <span class="font-rasa text-md mx-2">20 Down vote</span>#}
-{#        </div>#}
+        <p class="font-libreBaskerville text-sm text-gray-500 italic">by {{ post.author.fullName }} at {{ post.createdAt|ago }}</p>
+        {#        <div class="flex flex-row font-rasa gap-x-3 gap-y-3"> #}
+        {#            <span class="font-rasa text-md mx-2">800 Up vote</span> #}
+        {#            <span class="font-rasa text-md mx-2">20 Down vote</span> #}
+        {#        </div> #}
     </div>
 
 </main>

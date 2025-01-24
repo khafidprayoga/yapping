@@ -18,11 +18,12 @@ $routes = array(
         method: HttpMethod::GET,
         path: "/(index.*)?",
         handler: [Controllers\HomeController::class, 'index'],
+        middleware: [Middlewares\AuthContext::class]
     ),
     "GetFeedById" => new RouteMap(
         method: HttpMethod::GET,
         path: "/feeds/([0-9]+)",
-        handler: [Controllers\PostController::class, 'actionGetUserById'],
+        handler: [Controllers\PostController::class, 'actionGetPostById'],
         middleware: [Middlewares\AuthContext::class]
     ),
     "GetFeeds" => new RouteMap(

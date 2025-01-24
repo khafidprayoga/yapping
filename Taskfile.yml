@@ -3,7 +3,7 @@ version: '3'
 tasks:
   compile-css:
     cmds:
-      - npx tailwindcss -i ".\assets\css\tailwind.css" -o ".\public\css\styles.min.css" --use cssnano --minify --watch
+      - npx @tailwindcss/cli -i ".\assets\css\tailwind.css" -o ".\public\css\styles.min.css" --minify --watch
   #    silent: true
   run-dev:
     cmds:

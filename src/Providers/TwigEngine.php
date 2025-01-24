@@ -2,6 +2,7 @@
 
 namespace Khafidprayoga\PhpMicrosite\Providers;
 
+use Khafidprayoga\PhpMicrosite\Commons\TwigCarbonExtension;
 use Khafidprayoga\PhpMicrosite\Configs\AppConfig;
 use Twig\Environment;
 use Twig\Extension\CoreExtension;
@@ -22,7 +23,7 @@ class TwigEngine implements ProviderInterface
 
             self::$twig->getExtension(CoreExtension::class)
                 ->setDateFormat("Y-m-d H:i:s");
-            ;
+            self::$twig->addExtension(new TwigCarbonExtension());
 
         }
 

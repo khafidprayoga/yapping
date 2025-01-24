@@ -16,12 +16,10 @@
 
 </head>
 <body>
-<h1 class="text-blue-700 text-3xl font-libreBaskerville font-[500] text-center mt-5">X Microsite / {{ menu }}</h1>
-
+{% include "Partials/NavHeader.twig" with{greet: greet, menu: 'Feeds'} %}
 <main class="flex flex-col justify-center items-center mx-auto h-screen">
-    <div class="flex flex-col justify-center items-center w-[320px]">
-
-        <h2 class="font-rasa text-xl">"Something went wrong"</h2>
+    <div class="flex flex-col justify-center items-center w-[720px]">
+        <h2 class="font-merriWeather font-semibold text-2xl">Something went wrong</h2>
         <p class="font-libreBaskerville py-5">
             {{ error_message|nl2br }}
         </p>

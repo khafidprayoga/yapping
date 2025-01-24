@@ -5,6 +5,7 @@ namespace Khafidprayoga\PhpMicrosite\Controllers;
 use Exception;
 use Khafidprayoga\PhpMicrosite\Commons\HttpException;
 use Khafidprayoga\PhpMicrosite\Models\DTO\JwtClaimsDTO;
+use Khafidprayoga\PhpMicrosite\Utils\Greet;
 use Khafidprayoga\PhpMicrosite\Utils\Pagination;
 use MongoDB\Driver\Server;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,11 +22,15 @@ class PostController extends InitController
     {
         try {
             $paginator = new Pagination($request->getQueryParams());
+            $claims = $this->getClaims($request);
 
             $posts = $this->postService->getPosts($paginator);
             $this->render(
                 "Feed/Feeds",
-                ["posts" => $posts,],
+                [
+                    "posts" => $posts,
+                    'greet' => "Signed as " . $claims->getUserFullName(),
+                ],
             );
         } catch (HttpException $exception) {
             $this->render("Fragment/Exception", [
@@ -36,25 +41,26 @@ class PostController extends InitController
         }
     }
 
-    public function actionGetUserById(ServerRequestInterface $ctx, int $postId): void
+    public function actionGetPostById(ServerRequestInterface $ctx, int $postId): void
     {
         try {
-            $claims =  $ctx->getAttribute("claims");
-            $parsedClaims = new JwtClaimsDTO($claims);
+            $claims = $this->getClaims($ctx);
 
             $post = $this->postService->getPostById($postId);
             $this->render(
                 "Feed/DetailFeed",
                 [
                     "post" => $post,
-                    'claims' => $parsedClaims,
+                    'greet' => "Signed as " . $claims->getUserFullName(),
                 ],
             );
         } catch (HttpException $exception) {
+            $claims = $this->getClaims($ctx);
+
             $this->render("Fragment/Exception", [
                 "error_title" => "Failed get feed",
                 "error_message" => $exception->getMessage(),
-                "menu" => "Feed",
+                'greet' => Greet::greet($claims->getUserFullName()),
             ], Response::HTTP_NOT_FOUND);
         }
 

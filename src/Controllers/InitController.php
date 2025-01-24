@@ -113,4 +113,9 @@ class InitController extends Dependency
         exit;
     }
 
+    protected function getClaims(ServerRequestInterface $req): JwtClaimsDTO
+    {
+        $claims = $req->getAttribute("claims");
+        return new JwtClaimsDTO($claims);
+    }
 }
