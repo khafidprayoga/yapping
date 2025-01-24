@@ -38,6 +38,15 @@ class Route extends Dependency
         );
 
         $request = $creator->fromGlobals();
+
+
+        $this->log->info('New incoming HTTP Request', [
+            'http_method' => $request->getMethod(),
+            'uri' => $request->getUri()->getPath(),
+            'ip_addr' => $request->getServerParams()['REMOTE_ADDR'],
+            'user_agent' => $request->getServerParams()['HTTP_USER_AGENT'],
+        ]);
+
         foreach ($routes as $name => $route) {
             if ($route instanceof RouteMap) {
                 $middlewares = $route->getMiddlewares();
