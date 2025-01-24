@@ -4,7 +4,10 @@ namespace Khafidprayoga\PhpMicrosite\Controllers;
 
 use Exception;
 use Khafidprayoga\PhpMicrosite\Commons\HttpException;
+use Khafidprayoga\PhpMicrosite\Models\DTO\JwtClaimsDTO;
 use Khafidprayoga\PhpMicrosite\Utils\Pagination;
+use MongoDB\Driver\Server;
+use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class PostController extends InitController
@@ -14,10 +17,10 @@ class PostController extends InitController
         parent::__construct();
     }
 
-    public function index(): void
+    public function index(ServerRequestInterface $request): void
     {
         try {
-            $paginator = new Pagination($this->request->getQueryParams());
+            $paginator = new Pagination($request->getQueryParams());
 
             $posts = $this->postService->getPosts($paginator);
             $this->render(
@@ -33,14 +36,18 @@ class PostController extends InitController
         }
     }
 
-    public function actionGetUserById(int $postId): void
+    public function actionGetUserById(ServerRequestInterface $ctx, int $postId): void
     {
         try {
+            $claims =  $ctx->getAttribute("claims");
+            $parsedClaims = new JwtClaimsDTO($claims);
+
             $post = $this->postService->getPostById($postId);
             $this->render(
                 "Feed/DetailFeed",
                 [
-                    "post" => $post
+                    "post" => $post,
+                    'claims' => $parsedClaims,
                 ],
             );
         } catch (HttpException $exception) {

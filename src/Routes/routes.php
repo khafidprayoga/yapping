@@ -4,12 +4,14 @@
 use Khafidprayoga\PhpMicrosite\Commons\HttpMethod;
 use Khafidprayoga\PhpMicrosite\Controllers;
 use Khafidprayoga\PhpMicrosite\Routes\RouteMap;
+use Khafidprayoga\PhpMicrosite\Middlewares;
 
 /**
  * Define the structure for route definitions
  * @param string $method The HTTP method (lowercase)
  * @param string $path The route path (regex pattern for bramus/router)
  * @param callable|array $controller The controller, either as a closure or [ClassName, 'method']
+ * @param callable|array $middleware The controller, either as a closure or [ClassName, 'method']
  */
 $routes = array(
     "HomePage" => new RouteMap(
@@ -20,12 +22,14 @@ $routes = array(
     "GetFeedById" => new RouteMap(
         method: HttpMethod::GET,
         path: "/feeds/([0-9]+)",
-        handler: [Controllers\PostController::class, 'actionGetUserById']
+        handler: [Controllers\PostController::class, 'actionGetUserById'],
+        middleware: [Middlewares\AuthContext::class]
     ),
     "GetFeeds" => new RouteMap(
         method: HttpMethod::GET,
         path: "/feeds/",
-        handler: [Controllers\PostController::class, 'index']
+        handler: [Controllers\PostController::class, 'index'],
+        middleware: [Middlewares\AuthContext::class]
     ),
     "CreateUser" => new RouteMap(
         method: HttpMethod::POST,

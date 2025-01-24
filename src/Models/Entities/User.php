@@ -33,4 +33,19 @@ class User
     #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'user')]
     #[ORM\JoinColumn(name: 'id', referencedColumnName: 'user_id', nullable: false)]
     private Collection $posts;
+
+    public function getFullName(): string
+    {
+        return $this->fullName;
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getUsername(): string
+    {
+        return $this->username;
+    }
 }

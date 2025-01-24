@@ -10,6 +10,7 @@ readonly class RouteMap
         public HttpMethod $method,
         public string     $path,
         public array      $handler,
+        public ?array      $middleware = [],
     ) {
     }
 
@@ -26,5 +27,9 @@ readonly class RouteMap
     public function getHandler(): array
     {
         return $this->handler;
+    }
+    public function getMiddlewares(): array
+    {
+        return $this->middleware;
     }
 }

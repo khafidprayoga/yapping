@@ -8,6 +8,7 @@ use Khafidprayoga\PhpMicrosite\Models\DTO\LoginRequestDTO;
 use Khafidprayoga\PhpMicrosite\Models\DTO\RefreshSessionRequestDTO;
 use Khafidprayoga\PhpMicrosite\Models\DTO\UserDTO;
 use Khafidprayoga\PhpMicrosite\Utils\Pagination;
+use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends InitController
@@ -51,10 +52,10 @@ class UserController extends InitController
     {
     }
 
-    public function revalidateToken(): void
+    public function revalidateToken(ServerRequestInterface $req): void
     {
         try {
-            $jsonBody = $this->getJsonBody();
+            $jsonBody = $this->getJsonBody($req);
             $request = new RefreshSessionRequestDTO($jsonBody);
 
             $token = $this->authService->refresh($request);

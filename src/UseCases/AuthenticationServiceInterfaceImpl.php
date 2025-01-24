@@ -31,7 +31,6 @@ class AuthenticationServiceInterfaceImpl extends InitUseCase implements AuthServ
     private const int accessTokenExpiresInHours = 5;
     private const int refreshTokenAllowUsageInHours = 3;
     private const int refreshTokenExpiresInDays = 7;
-    #[Inject]
     private readonly UserServiceInterface $userService;
 
     private readonly EntityRepository $repo;
@@ -44,7 +43,7 @@ class AuthenticationServiceInterfaceImpl extends InitUseCase implements AuthServ
         parent::__construct($db, $entityManager);
 
         $this->repo = $this->entityManager->getRepository(Session::class);
-
+        $this->userService = $mediator->get(UserServiceInterface::class);
         $this->jwtSecret = APP_CONFIG->providers->jwt->secretKey;
     }
 
@@ -210,5 +209,17 @@ SQL;
     {
         $decoded = (array)JWT::decode($token, new Key($this->jwtSecret, 'HS256'));
         return new JwtClaimsDTO($decoded);
+    }
+
+    /**
+     * @throws HttpException
+     */
+    public function validate(string $jwtToken): JwtClaimsDTO
+    {
+        try {
+            return $this->decode($jwtToken);
+        } catch (Exception $err) {
+            throw new HttpException($err->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

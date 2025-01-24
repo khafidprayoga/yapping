@@ -30,6 +30,7 @@ class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterfa
 
         parent::__construct($db, $entityManager);
 
+
         $this->repo = $this->entityManager->getRepository(Post::class);
     }
 

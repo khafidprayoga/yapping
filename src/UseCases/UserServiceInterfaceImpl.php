@@ -18,7 +18,6 @@ use Khafidprayoga\PhpMicrosite\Services\UserServiceInterface;
 class UserServiceInterfaceImpl extends InitUseCase implements UserServiceInterface
 {
     private EntityRepository $repo;
-    #[Inject]
     private PostServiceInterface $postService;
 
     public function __construct(ServiceMediatorInterface $mediator)
@@ -27,6 +26,7 @@ class UserServiceInterfaceImpl extends InitUseCase implements UserServiceInterfa
         $entityManager = $mediator->get(EntityManager::class);
         parent::__construct($db, $entityManager);
 
+        $this->postService = $mediator->get(PostServiceInterface::class);
         $this->repo = $this->entityManager->getRepository(User::class);
     }
 

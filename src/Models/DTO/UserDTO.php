@@ -13,7 +13,7 @@ class UserDTO
     public function __construct(array $requestData)
     {
         $validator = new Validator($requestData);
-        $validator->rule('required', ['full_name', 'username', 'password']);
+        $validator->rule('required', ['fullName', 'username', 'password']);
         $validator->rule('alphaNum', 'username');
 
         $validator
@@ -24,7 +24,7 @@ class UserDTO
             ->rule('regex', 'password', '/\d/')     // Must contain at least one number
             ->rule('regex', 'password', '/[@$!%*?&]/'); // Must contain at least one special character
 
-        $this->fullName = $requestData['full_name'];
+        $this->fullName = $requestData['fullName'];
         $this->username = $requestData['username'];
         $this->password = $requestData['password'];
     }

@@ -3,6 +3,7 @@
 namespace Khafidprayoga\PhpMicrosite\Services;
 
 use Khafidprayoga\PhpMicrosite\Models\DTO\AuthDTO;
+use Khafidprayoga\PhpMicrosite\Models\DTO\JwtClaimsDTO;
 use Khafidprayoga\PhpMicrosite\Models\DTO\RefreshSessionRequestDTO;
 use Khafidprayoga\PhpMicrosite\Models\DTO\TokenDTO;
 
@@ -14,4 +15,5 @@ interface AuthServiceInterface
     public function logout(string $jwtToken): bool;
 
     public function refresh(RefreshSessionRequestDTO $req): TokenDTO;
+    public function validate(string $jwtToken): JwtClaimsDTO;
 }

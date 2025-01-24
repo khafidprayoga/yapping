@@ -5,6 +5,7 @@ namespace Khafidprayoga\PhpMicrosite\Controllers;
 use DI\ContainerBuilder;
 use Khafidprayoga\PhpMicrosite\Commons\Dependency;
 use Khafidprayoga\PhpMicrosite\Commons\HttpException;
+use Khafidprayoga\PhpMicrosite\Models\DTO\JwtClaimsDTO;
 use Khafidprayoga\PhpMicrosite\Providers\Database;
 use Khafidprayoga\PhpMicrosite\Providers\Serializer;
 use Khafidprayoga\PhpMicrosite\Providers\TwigEngine;
@@ -30,7 +31,6 @@ use function DI\value;
 class InitController extends Dependency
 {
     private Environment $twig;
-    protected ServerRequestInterface $request;
     protected UserServiceInterface $userService;
 
     protected PostServiceInterface $postService;
@@ -41,23 +41,7 @@ class InitController extends Dependency
     public function __construct()
     {
         parent::__construct();
-
-
-        // add strict type for http request-response lifecycle on the router
-        $psr17Factory = new Psr17Factory();
-        $creator = new ServerRequestCreator(
-            serverRequestFactory: $psr17Factory,
-            uriFactory: $psr17Factory,
-            uploadedFileFactory: $psr17Factory,
-            streamFactory: $psr17Factory,
-        );
-
-        $this->request = $creator->fromGlobals();
-
-
         $containerBuild = new ContainerBuilder();
-        $containerBuild->useAutowiring(false);
-        $containerBuild->useAttributes(true);
 
         // register dependency container
         $containerBuild->addDefinitions([
@@ -98,15 +82,16 @@ class InitController extends Dependency
         $view = $this->twig->render($templateName, $data);
         echo $view;
 
+        exit;
     }
 
-    protected function getJsonBody(): array
+    protected function getJsonBody(ServerRequestInterface $req): array
     {
-        $body = (string)$this->request->getBody();
+        $body = (string)$req->getBody();
         return json_decode($body, true);
     }
 
-    protected function responseJson(?HttpException $err, mixed $data, ?int $statusCode = 200): void
+    protected function responseJson(?HttpException $err, mixed $data = [], ?int $statusCode = 200): void
     {
 
         header('Content-Type: application/json');
@@ -116,8 +101,6 @@ class InitController extends Dependency
             $response['statusCode'] = $err->getCode();
             $response['status'] = 'ERROR';
             $response['error_message'] = $err->getMessage();
-            $response['data'] = [];
-
             $statusCode = $err->getCode();
         } else {
             $response['statusCode'] = $statusCode;
@@ -129,4 +112,5 @@ class InitController extends Dependency
         echo $this->serializer->serialize($response, 'json');
         exit;
     }
+
 }
