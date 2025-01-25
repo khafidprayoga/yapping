@@ -13,14 +13,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends InitController
 {
-    public function actionCreateUser(): void
+    public function actionCreateUser(ServerRequestInterface $request): void
     {
         try {
-            $jsonBody = $this->getJsonBody();
-            $request = new UserDTO($jsonBody);
+            $data = $this->getFormData($request);
+            $userRegister = new UserDTO($data);
 
-            $user = $this->userService->createUser($request);
-            var_dump($user);
+            // creating user
+            $this->userService->createUser($userRegister);
+
+            $token = $this->authService->login($userRegister->username, $userRegister->password);
+            $this->responseJson(null, $token);
         } catch (HttpException $exception) {
             $this->render("Fragment/Exception", [
                 "error_title" => "Get Feeds error",
@@ -30,17 +33,45 @@ class UserController extends InitController
         }
     }
 
-    public function index()
-    {
-    }
-
-    public function actionAuthenticate(): void
+    public function signIn(): void
     {
         try {
-            $jsonBody = $this->getJsonBody();
-            $request = new LoginRequestDTO($jsonBody);
+            $this->render('User/SignIn', [
+                'actionUrl' => '/users/login',
+                'httpMethod' => 'POST',
+            ]);
+        } catch (HttpException $exception) {
+            $this->render("Fragment/Exception", [
+                "error_title" => "Sign In user error",
+                "error_message" => $exception->getMessage(),
+                "menu" => "Sign In",
+            ]);
+        }
+    }
 
-            $credentials = $this->authService->login($request->getUsername(), $request->getPassword());
+    public function signUp(): void
+    {
+        try {
+            $this->render('User/SignUp', [
+                'actionUrl' => '/users/register',
+                'httpMethod' => 'POST',
+            ]);
+        } catch (HttpException $exception) {
+            $this->render("Fragment/Exception", [
+                "error_title" => "Sign In user error",
+                "error_message" => $exception->getMessage(),
+                "menu" => "Register",
+            ]);
+        }
+    }
+
+    public function actionAuthenticate(ServerRequestInterface $request): void
+    {
+        try {
+            $formData = $this->getFormData($request);
+            $loginRequest = new LoginRequestDTO($formData);
+
+            $credentials = $this->authService->login($loginRequest->getUsername(), $loginRequest->getPassword());
 
             $this->responseJson(null, $credentials, Response::HTTP_OK);
         } catch (HttpException $err) {
@@ -52,7 +83,7 @@ class UserController extends InitController
     {
     }
 
-    public function revalidateToken(ServerRequestInterface $req): void
+    public function actionRevalidateToken(ServerRequestInterface $req): void
     {
         try {
             $jsonBody = $this->getJsonBody($req);

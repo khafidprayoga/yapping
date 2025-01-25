@@ -16,8 +16,7 @@ class LoginRequestDTO
         $validator->rule('alphaNum', 'username');
 
         $validator
-            ->rule('min', 'password', 8)
-            ->rule('max', 'password', 32)
+            ->rule('lengthBetween', 'password', 8, 32)->message('Password must be between 8 and 32 characters long')
             ->rule('regex', 'password', '/[A-Z]/')  // Must contain at least one uppercase letter
             ->rule('regex', 'password', '/[a-z]/')  // Must contain at least one lowercase letter
             ->rule('regex', 'password', '/\d/')     // Must contain at least one number

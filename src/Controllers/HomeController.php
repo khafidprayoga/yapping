@@ -24,10 +24,10 @@ class HomeController extends InitController
                     "/feeds" => "Feed"
                 ],
                 [
-                    "/login" => "Login"
+                    "/signin" => "Login"
                 ],
                 [
-                    "/register" => "Register"
+                    "/signup" => "Register"
                 ]
             ]
         ]);

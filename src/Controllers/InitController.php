@@ -88,7 +88,13 @@ class InitController extends Dependency
     protected function getJsonBody(ServerRequestInterface $req): array
     {
         $body = (string)$req->getBody();
+        value($body);
         return json_decode($body, true);
+    }
+
+    protected function getFormData(ServerRequestInterface $req): array
+    {
+        return $req->getParsedBody();
     }
 
     protected function responseJson(?HttpException $err, mixed $data = [], ?int $statusCode = 200): void

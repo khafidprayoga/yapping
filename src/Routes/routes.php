@@ -42,10 +42,20 @@ $routes = array(
         path: "/users/login",
         handler: [Controllers\UserController::class, 'actionAuthenticate']
     ),
+    "SignIn" => new RouteMap(
+        method: HttpMethod::GET,
+        path: "/signin",
+        handler: [Controllers\UserController::class, 'signIn']
+    ),
+    "SignUp"=>new RouteMap(
+        method: HttpMethod::GET,
+        path: "/signup",
+        handler: [Controllers\UserController::class, 'signUp']
+    ),
     "RevalidateSession" => new RouteMap(
         method: HttpMethod::POST,
         path: "/users/refresh_token",
-        handler: [Controllers\UserController::class, 'revalidateToken']
+        handler: [Controllers\UserController::class, 'actionRevalidateToken']
     )
 );
 
