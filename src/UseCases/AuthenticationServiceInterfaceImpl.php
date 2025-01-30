@@ -76,10 +76,17 @@ class AuthenticationServiceInterfaceImpl extends InitUseCase implements AuthServ
         return $this->generateJwtToken($user);
     }
 
-    public function logout(string $jwtToken): bool
+    public function logout(string $refreshToken): bool
     {
-        // TODO: Implement logout() method.
-        return false;
+        $setRevokeQuery = $this->repo->createQueryBuilder('sessions')
+            ->update(Session::class, 's')
+            ->set('s.isRevoked', true)
+            ->where('s.refreshToken = :refreshToken')
+            ->setParameter('refreshToken', $refreshToken)
+            ->getQuery();
+
+        $setRevokeQuery->execute();
+        return true;
     }
 
     /**
@@ -88,7 +95,7 @@ class AuthenticationServiceInterfaceImpl extends InitUseCase implements AuthServ
     private function generateJwtToken(array $user): TokenDTO
     {
         try {
-            $accessToken = $this->generateAccessToken(
+            $accessTokenPair = $this->generateAccessToken(
                 userId: $user['id'],
                 fullName: $user['fullName'],
             );
@@ -113,38 +120,47 @@ SQL;
             $query->bindValue('expires_at', $refreshTokenPair['expiresAt']);
 
             $query->executeQuery();
-            return new TokenDTO($accessToken, $refreshTokenPair['token']);
 
+            $token = new TokenDTO($accessTokenPair['token'], $refreshTokenPair['token']);
+            $token->setAccessTokenExpiresAt($accessTokenPair['expiresAt']);
+            $token->setRefreshTokenExpiresAt($refreshTokenPair['expiresAt']);
+
+            return $token;
         } catch (Exception $err) {
             $this->log->error('failed to insert jwt refresh token session', $err->getMessage());
             throw new HttpException(message: 'failed to save token session', code: Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
-    private function generateAccessToken(int $userId, string $fullName): string
+    private function generateAccessToken(int $userId, string $fullName): array
     {
-
-        return JWT::encode(
+        $expiresAt = Carbon::now()->addHours(self::accessTokenExpiresInHours)->timestamp;
+        $encoded = JWT::encode(
             payload: [
                 'iat' => Carbon::now()->timestamp,
                 'sub' => $userId,
-                'exp' => Carbon::now()->addHours(self::accessTokenExpiresInHours)->timestamp,
+                'exp' => $expiresAt,
                 'name' => $fullName,
             ],
             key: $this->jwtSecret,
             alg: 'HS256'
         );
+
+        return [
+            "token" => $encoded,
+            "expiresAt" => $expiresAt,
+        ];
     }
 
     private function generateRefreshToken(int $userId, string $jti): array
     {
 
-        $expiresAt = Carbon::now()->addDays(self::refreshTokenExpiresInDays);
+        $expiresAt = Carbon::now()->addDays(self::refreshTokenExpiresInDays)->timestamp;
 
         $payload = [
             'iat' => Carbon::now()->timestamp,
             'sub' => $userId,
-            'exp' => $expiresAt->timestamp,
+            'exp' => $expiresAt,
             'jti' => $jti,
         ];
 
@@ -181,7 +197,11 @@ SQL;
 
             $user = $user[0];
             $accessToken = $this->generateAccessToken($claims->getUserId(), $user['fullName']);
-            return new TokenDTO(accessToken: $accessToken);
+
+            $token = new TokenDTO(accessToken: $accessToken['token']);
+            $token->setAccessTokenExpiresAt($accessToken['expiresAt']);
+
+            return $token;
         } catch (BeforeValidException $err) {
             throw new HttpException("can not yet use this refresh token", code: Response::HTTP_BAD_REQUEST);
         } catch (ExpiredException $err) {

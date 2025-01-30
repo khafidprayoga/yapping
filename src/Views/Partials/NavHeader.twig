@@ -2,5 +2,15 @@
     <h1 class="text-3xl font-[500] text-blue-700 text-center sm:text-left">
         X Microsite / {{ menu|default('Resource') }}
     </h1>
-    <span class="text-gray-700 font-medium truncate">{{ greet }}</span>
+
+    <span class="text-gray-700 font-light truncate">
+        {{ greet }},
+         <button
+                 id="logoutBtn"
+                 href="#"
+                 class=" text-gray-700 font-medium underline underline-offset-3 hover:text-gray-400 font-bold transition-colors duration-200 hover:cursor-pointer active:scale-95 active:bg-gray-100 active:text-gray-600"
+         >
+        Logout
+    </button>
+    </span>
 </div>

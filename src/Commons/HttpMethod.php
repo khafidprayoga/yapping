@@ -10,5 +10,6 @@ enum HttpMethod: string
     case POST = Request::METHOD_POST;
     case PUT = Request::METHOD_PUT;
     case PATCH = Request::METHOD_PATCH;
+    case DELETE = Request::METHOD_DELETE;
 
 }

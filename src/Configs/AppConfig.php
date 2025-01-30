@@ -8,16 +8,19 @@ use Khafidprayoga\PhpMicrosite\Commons\AppMode;
 class AppConfig
 {
     public string $appName;
+    public string $appDomain;
     public AppMode $appMode;
     public Providers $providers;
     public string $serverTimeZone;
     public function __construct(
         string    $appName,
+        string    $appDomain,
         string    $appMode,
         Providers $Providers,
         string    $serverTimeZone
     ) {
         $this->appName = $appName;
+        $this->appDomain = $appDomain;
 
         $appModeCfg = strtolower($appMode);
         $this->appMode = match ($appModeCfg) {

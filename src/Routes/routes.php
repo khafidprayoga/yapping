@@ -42,6 +42,11 @@ $routes = array(
         path: "/users/login",
         handler: [Controllers\UserController::class, 'actionAuthenticate']
     ),
+    "Logout" => new RouteMap(
+        method: HttpMethod::POST,
+        path: "/users/logout",
+        handler: [Controllers\UserController::class, 'actionLogout']
+    ),
     "SignIn" => new RouteMap(
         method: HttpMethod::GET,
         path: "/signin",

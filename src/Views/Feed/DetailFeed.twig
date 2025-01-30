@@ -27,7 +27,8 @@
             {{ post.content|nl2br }}
         </p>
 
-        <p class="font-libreBaskerville text-sm text-gray-500 italic">by {{ post.author.fullName }} at {{ post.createdAt|ago }}</p>
+        <p class="font-libreBaskerville text-sm text-gray-500 italic">by {{ post.author.fullName }}
+            at {{ post.createdAt|ago }}</p>
         {#        <div class="flex flex-row font-rasa gap-x-3 gap-y-3"> #}
         {#            <span class="font-rasa text-md mx-2">800 Up vote</span> #}
         {#            <span class="font-rasa text-md mx-2">20 Down vote</span> #}
@@ -36,4 +37,7 @@
 
 </main>
 </body>
+<script>
+    {% include 'Partials/logoutActionBtn.js' %}
+</script>
 </html>

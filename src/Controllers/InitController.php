@@ -106,7 +106,7 @@ class InitController extends Dependency
         if (isset($err)) {
             $response['statusCode'] = $err->getCode();
             $response['status'] = 'ERROR';
-            $response['error_message'] = $err->getMessage();
+            $response['errorMessage'] = $err->getMessage();
             $statusCode = $err->getCode();
         } else {
             $response['statusCode'] = $statusCode;
