@@ -76,7 +76,7 @@ class UserController extends InitController
     {
         try {
             $formData = $this->getFormData($request);
-            $hasNext = $formData['next'];
+            $hasNext = $formData['next'] ?? null;
             $loginRequest = new LoginRequestDTO($formData);
 
             $credentials = $this->authService->login($loginRequest->getUsername(), $loginRequest->getPassword());
@@ -92,7 +92,7 @@ class UserController extends InitController
                 path: '/',
             ));
 
-            if ($hasNext) {
+            if (!is_null($hasNext)) {
                 $this->redirect(urldecode($hasNext));
             }
 

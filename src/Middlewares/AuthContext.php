@@ -23,9 +23,13 @@ class AuthContext extends InitController implements MiddlewareInterface
         exit();
     }
 
-    private function validate(string $accessToken, string $refreshToken): ?JwtClaimsDTO
+    private function validate(?string $accessToken, string $refreshToken): ?JwtClaimsDTO
     {
         try {
+            if(is_null($accessToken)){
+                throw new HttpException('access token expired', Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
             return $this->authService->validate($accessToken);
         } catch (HttpException $e) {
             if ($e->getCode() == Response::HTTP_INTERNAL_SERVER_ERROR) {
@@ -38,14 +42,14 @@ class AuthContext extends InitController implements MiddlewareInterface
                     $newAccessToken = $this->authService->refresh($req);
 
                     // set new cookies for the accessToken
-                    setCookie('accessToken', $newAccessToken, Cookies::formatSettings(
+                    setCookie('accessToken', $newAccessToken->getAccessToken(), Cookies::formatSettings(
                         appConfig: APP_CONFIG,
                         expiresIn: $newAccessToken->getAccessTokenExpiresAt(),
                         path: '/',
                     ));
 
                     // extract access token to token claims
-                    return $this->authService->validate($newAccessToken);
+                    return $this->authService->validate($newAccessToken->getAccessToken());
                 } catch (HttpException $e) {
                     // return null on error refreshing token (possible refresh token is expired)
                     return null;

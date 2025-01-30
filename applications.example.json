@@ -1,6 +1,7 @@
 {
   "appName": "X Microsite",
   "appMode": "DEVELOPMENT",
+  "appDomain": "localhost",
   "Providers": {
     "Jwt": {
       "secretKey": ""

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Khafidprayoga\PhpMicrosite\Commons\HttpException;
+use Khafidprayoga\PhpMicrosite\Models\DTO\PostingRequestDTO;
 use Khafidprayoga\PhpMicrosite\Models\Entities\Post;
 use Khafidprayoga\PhpMicrosite\Services\PostServiceInterface;
 use Khafidprayoga\PhpMicrosite\Services\ServiceMediatorInterface;
@@ -37,10 +38,25 @@ class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterfa
     /**
      * @throws Exception
      */
-    public function createNewPost(): Post
+    public function createNewPost(PostingRequestDTO $request): array
     {
-        // TODO: Implement createNewPost() method.
-        throw new Exception("Not implemented");
+        $dql = <<<SQL
+    INSERT 
+        INTO posts (title, content, user_id)
+        VALUES (:title, :content, :user_id)
+    RETURNING id
+SQL;
+
+
+        $query = $this->entityManager->getConnection()->prepare($dql);
+        $query->bindValue(':title', $request->title);
+        $query->bindValue(':content', $request->content);
+        $query->bindValue(':user_id', $request->userId);
+
+        $query->executeQuery();
+        $id = $this->entityManager->getConnection()->lastInsertId();
+
+        return $this->getPostById($id);
     }
 
     /**

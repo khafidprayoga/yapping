@@ -17,9 +17,9 @@
 </head>
 <body>
 {% include "Partials/NavHeader.twig" with{greet: greet, menu: 'Feeds'} %}
-<main class="flex flex-col justify-center items-center mx-auto h-screen">
+<main class="flex flex-col flex-wrap justify-center items-center mx-auto h-auto w-full ">
     {% if posts is not empty %}
-        <div class="grid grid-cols-1 gap-6 p-6">
+        <div class="grid grid-cols-1 gap-6 p-6 ">
             {% for post in posts %}
                 <a href="/feeds/{{ post.id }}" class="block">
                     <div class="hover:cursor-pointer flex flex-col justify-center items-center w-full max-w-[720px] border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 px-6 py-6 bg-white">
@@ -52,8 +52,8 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="flex flex-col justify-center items-center w-full max-w-[720px]">
-            <h2 class="font-rasa text-xl">No posts yet</h2>
+        <div class="flex flex-col justify-center items-center w-full max-w-[720px] mx-auto h-screen">
+            <h2 class="font-rasa text-2xl">No posts yet</h2>
         </div>
 
     {% endif %}
