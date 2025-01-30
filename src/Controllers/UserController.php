@@ -35,7 +35,7 @@ class UserController extends InitController
                 path: '/',
             ));
 
-            $this->redirectToFeeds();
+            $this->redirect('/feeds');
         } catch (HttpException $err) {
             $this->responseJson($err, null, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -46,7 +46,7 @@ class UserController extends InitController
         // check token
         $isAuthenticated = $this->authCheck($request);
         if ($isAuthenticated) {
-            $this->redirectToFeeds();
+            $this->redirect('/feeds');
         }
 
         // if user doesnt has token or token expired render login page
@@ -62,7 +62,7 @@ class UserController extends InitController
         // check token
         $isAuthenticated = $this->authCheck($request);
         if ($isAuthenticated) {
-            $this->redirectToFeeds();
+            $this->redirect('/feeds');
         }
 
         // if error instance of claims validation force render the template
@@ -72,11 +72,11 @@ class UserController extends InitController
         ]);
     }
 
-    public
-    function actionAuthenticate(ServerRequestInterface $request): void
+    public function actionAuthenticate(ServerRequestInterface $request): void
     {
         try {
             $formData = $this->getFormData($request);
+            $hasNext = $formData['next'];
             $loginRequest = new LoginRequestDTO($formData);
 
             $credentials = $this->authService->login($loginRequest->getUsername(), $loginRequest->getPassword());
@@ -92,7 +92,11 @@ class UserController extends InitController
                 path: '/',
             ));
 
-            $this->redirectToFeeds();
+            if ($hasNext) {
+                $this->redirect(urldecode($hasNext));
+            }
+
+            $this->redirect('/feeds');
         } catch (HttpException $err) {
             $this->responseJson($err, null, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -104,7 +108,7 @@ class UserController extends InitController
         $accessToken = $_COOKIE['accessToken'] ?? null;
         $refreshToken = $_COOKIE['refreshToken'] ?? null;
         if (is_null($accessToken) && is_null($refreshToken)) {
-            $this->redirectToLogin();
+            $this->redirect('/signin');
         }
 
         // flush cookies
@@ -126,7 +130,7 @@ class UserController extends InitController
         }
 
         // redirect to signin page
-        $this->redirectToLogin();
+        $this->redirect('/signin');
     }
 
     public function actionRevalidateToken(ServerRequestInterface $req): void
@@ -142,25 +146,14 @@ class UserController extends InitController
         }
     }
 
-    private function redirectToFeeds(): void
+    private function redirect(string $path): void
     {
         //redirect to feeds
         // Set the HTTP status code to 302 (temporary redirect)
         http_response_code(302);
 
         // Set the Location header to the login page URL
-        header('Location: /feeds');
-        exit(0);
-    }
-
-    private function redirectToLogin(): void
-    {
-        //redirect to feeds
-        // Set the HTTP status code to 302 (temporary redirect)
-        http_response_code(302);
-
-        // Set the Location header to the login page URL
-        header('Location: /signin');
+        header('Location: ' . $path);
         exit(0);
     }
 

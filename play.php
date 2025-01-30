@@ -1,4 +1,4 @@
-<<?php
+<?php
 
-$expires = time() + (60 * 60);
-echo "Expires at $expires\n";
+$returnUrl = urlencode('/feeds/1');
+echo "Expires at $returnUrl\n";

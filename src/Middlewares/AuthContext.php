@@ -13,13 +13,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthContext extends InitController implements MiddlewareInterface
 {
-    private function redirectToLogin(): void
+    private function redirectToLogin(?string $next): void
     {
         // Set the HTTP status code to 302 (temporary redirect)
         http_response_code(302);
 
         // Set the Location header to the login page URL
-        header('Location: /signin');
+        header('Location: /signin?next=' . urlencode($next));
         exit();
     }
 
@@ -61,7 +61,7 @@ class AuthContext extends InitController implements MiddlewareInterface
         $refreshToken = $_COOKIE['refreshToken'] ?? null;
 
         if (is_null($accessToken) && is_null($refreshToken)) {
-            $this->redirectToLogin();
+            $this->redirectToLogin($request->getUri()->getPath());
         }
 
         // decode jwt and return json err on response at server
@@ -69,7 +69,7 @@ class AuthContext extends InitController implements MiddlewareInterface
 
         // if null (failed to regenerate accessToken based on refreshToken)
         if (is_null($claims)) {
-            $this->redirectToLogin();
+            $this->redirectToLogin($request->getUri()->getPath());
         }
 
         // limitation on interface, so we format back to plain array rather than typed object
