@@ -122,8 +122,12 @@ SQL;
             $query->executeQuery();
 
             $token = new TokenDTO($accessTokenPair['token'], $refreshTokenPair['token']);
-            $token->setAccessTokenExpiresAt($accessTokenPair['expiresAt']);
-            $token->setRefreshTokenExpiresAt($refreshTokenPair['expiresAt']);
+
+            $accessTokenExpiresAt = Carbon::parse($accessTokenPair['expiresAt']);
+            $refreshTokenExpiresAt = Carbon::parse($refreshTokenPair['expiresAt']);
+
+            $token->setAccessTokenExpiresAt($accessTokenExpiresAt->timestamp);
+            $token->setRefreshTokenExpiresAt($refreshTokenExpiresAt->timestamp);
 
             return $token;
         } catch (Exception $err) {
@@ -134,12 +138,12 @@ SQL;
 
     private function generateAccessToken(int $userId, string $fullName): array
     {
-        $expiresAt = Carbon::now()->addHours(self::accessTokenExpiresInHours)->timestamp;
+        $expiresAt = Carbon::now()->addHours(self::accessTokenExpiresInHours);
         $encoded = JWT::encode(
             payload: [
                 'iat' => Carbon::now()->timestamp,
                 'sub' => $userId,
-                'exp' => $expiresAt,
+                'exp' => $expiresAt->timestamp,
                 'name' => $fullName,
             ],
             key: $this->jwtSecret,
@@ -155,12 +159,12 @@ SQL;
     private function generateRefreshToken(int $userId, string $jti): array
     {
 
-        $expiresAt = Carbon::now()->addDays(self::refreshTokenExpiresInDays)->timestamp;
+        $expiresAt = Carbon::now()->addDays(self::refreshTokenExpiresInDays);
 
         $payload = [
             'iat' => Carbon::now()->timestamp,
             'sub' => $userId,
-            'exp' => $expiresAt,
+            'exp' => $expiresAt->timestamp,
             'jti' => $jti,
         ];
 
@@ -199,7 +203,9 @@ SQL;
             $accessToken = $this->generateAccessToken($claims->getUserId(), $user['fullName']);
 
             $token = new TokenDTO(accessToken: $accessToken['token']);
-            $token->setAccessTokenExpiresAt($accessToken['expiresAt']);
+
+            $accessTokenExpiresAt = Carbon::parse($accessToken['expiresAt']);
+            $token->setAccessTokenExpiresAt($accessTokenExpiresAt->timestamp);
 
             return $token;
         } catch (BeforeValidException $err) {

@@ -17,6 +17,7 @@ use Khafidprayoga\PhpMicrosite\Services\ServiceMediator;
 use Khafidprayoga\PhpMicrosite\UseCases\AuthenticationServiceInterfaceImpl;
 use Khafidprayoga\PhpMicrosite\UseCases\PostServiceInterfaceImpl;
 use Khafidprayoga\PhpMicrosite\UseCases\UserServiceInterfaceImpl;
+use Khafidprayoga\PhpMicrosite\Utils\Cookies;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Psr\Http\Message\ServerRequestInterface;
@@ -124,4 +125,42 @@ class InitController extends Dependency
         $claims = $req->getAttribute("claims");
         return new JwtClaimsDTO($claims);
     }
+
+    protected function authCheck(ServerRequestInterface $request): bool
+    {
+        // check token
+        $accessToken = $_COOKIE['accessToken'] ?? null;
+        $refreshToken = $_COOKIE['refreshToken'] ?? null;
+
+        if (!$accessToken || !$refreshToken) {
+            return false;
+        }
+        // decode jwt and return json err on response at server
+        try {
+            $claims = $this->authService->validate($accessToken);
+
+            if ($claims->getUserId() > 0) {
+                return true;
+            }
+        } catch (HttpException) {
+            try {
+                // regenerate access token
+                $newAccessToken = $this->authService->refresh($refreshToken);
+
+                // set new cookies for the accessToken
+                setCookie('accessToken', $newAccessToken, Cookies::formatSettings(
+                    appConfig: APP_CONFIG,
+                    expiresIn: $newAccessToken->getAccessTokenExpiresAt(),
+                    path: '/',
+                ));
+
+                return true;
+            } catch (HttpException) {
+                // on refresh token invalid
+                return false;
+            }
+        }
+        return false;
+    }
+
 }

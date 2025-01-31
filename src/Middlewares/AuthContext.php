@@ -26,7 +26,7 @@ class AuthContext extends InitController implements MiddlewareInterface
     private function validate(?string $accessToken, string $refreshToken): ?JwtClaimsDTO
     {
         try {
-            if(is_null($accessToken)){
+            if (is_null($accessToken)) {
                 throw new HttpException('access token expired', Response::HTTP_INTERNAL_SERVER_ERROR);
             }
 

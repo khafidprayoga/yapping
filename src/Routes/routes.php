@@ -52,7 +52,7 @@ $routes = array(
         path: "/signin",
         handler: [Controllers\UserController::class, 'signIn']
     ),
-    "SignUp"=>new RouteMap(
+    "SignUp" => new RouteMap(
         method: HttpMethod::GET,
         path: "/signup",
         handler: [Controllers\UserController::class, 'signUp']
