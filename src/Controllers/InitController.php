@@ -78,6 +78,7 @@ class InitController extends Dependency
 
     public function render(string $template, array $data = [], int $statusCode = 200): void
     {
+        header_remove('X-Powered-By');
         http_response_code($statusCode);
         $templateName = $template . ".twig";
         $view = $this->twig->render($templateName, $data);
@@ -114,7 +115,7 @@ class InitController extends Dependency
             $response['status'] = 'SUCCESS';
             $response['data'] = $data;
         }
-
+        header_remove('X-Powered-By');
         http_response_code($statusCode);
         echo $this->serializer->serialize($response, 'json');
         exit;

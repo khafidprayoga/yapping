@@ -9,7 +9,7 @@ interface PostServiceInterface
 {
     public function createNewPost(PostingRequestDTO $request): array;
 
-    public function getPostById(int $id): array;
+    public function getPostById(Pagination $paginator, int $id): array;
 
     public function getPosts(Pagination $pagination): array;
 

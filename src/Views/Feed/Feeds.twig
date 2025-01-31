@@ -21,7 +21,7 @@
     {% if posts is not empty %}
         <div class="grid grid-cols-1 gap-6 p-6 ">
             {% for post in posts %}
-                <a href="/feeds/{{ post.id }}" class="block">
+                <a href="/feeds/{{ post.id }}?page={{ page }}&page_size={{ pageSize }}&search={{ search }}" class="block">
                     <div class="hover:cursor-pointer flex flex-col justify-center items-center w-full max-w-[720px] border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 px-6 py-6 bg-white">
 
                         {# Post Title #}

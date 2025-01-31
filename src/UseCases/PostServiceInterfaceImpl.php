@@ -62,13 +62,14 @@ SQL;
     /**
      * @throws HttpException
      */
-    public function getPostById(int $id): array
+    public function getPostById(Pagination $paginator, int $id): array
     {
         $post = $this->repo->createQueryBuilder("posts")
             ->addSelect("users")
             ->leftJoin("posts.author", "users")
             ->where("posts.id = :postId")
             ->setParameter("postId", $id)
+            ->orderBy('posts.id', 'DESC')
             ->getQuery()
             ->getArrayResult();
 
@@ -76,11 +77,46 @@ SQL;
             throw  new HttpException("Feed with id $id not found or has been deleted", Response::HTTP_NOT_FOUND);
         }
 
-        return $post[0];
+        if ($paginator->isContainsSearch()) {
+            return [
+                'post' => $post[0],
+                'previousPostId' => null,
+                'nextPostId' => null,
+            ];
+        }
+
+        // Get previous and next post (for not filetered feeds)
+        $actionNextPostId = $this->repo->createQueryBuilder('posts')
+            ->select("posts.id")
+            ->where("posts.id < :postId")
+            ->setParameter("postId", $id)
+            ->orderBy('posts.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        $actionPrevPostId = $this->repo->createQueryBuilder('posts')
+            ->select("posts.id")
+            ->where('posts.id > :postId')
+            ->setParameter("postId", $id)
+            ->orderBy('posts.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        $prevPostId = $actionPrevPostId['id'] ?? null;
+        $nextPostId = $actionNextPostId['id'] ?? null;
+
+        return [
+            'post' => $post[0],
+            'previousPostId' => $prevPostId,
+            'nextPostId' => $nextPostId,
+        ];
     }
 
 
-    public function getPosts(Pagination $pagination): array
+    public
+    function getPosts(Pagination $pagination): array
     {
         $query = $this->repo
             ->createQueryBuilder("posts")
@@ -91,12 +127,13 @@ SQL;
         if ($pagination->isContainsSearch()) {
             $search = $pagination->getSearch();
             $query
-                ->where("posts.title LIKE :search OR posts.content LIKE :search")
+                ->andWhere("posts.title LIKE :search OR posts.content LIKE :search")
                 ->setParameter("search", "%$search%");
         }
 
         $query = $query
             ->setParameter("isDeleted", false)
+            ->orderBy("posts.id", "DESC")
             ->setFirstResult($pagination->getOffset())
             ->setMaxResults($pagination->getPageSize())
             ->getQuery();

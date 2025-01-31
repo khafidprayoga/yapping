@@ -28,6 +28,9 @@ class PostController extends InitController
             $this->render(
                 "Feed/Feeds",
                 [
+                    "page" => $paginator->getPage(),
+                    "pageSize" => $paginator->getPageSize(),
+                    "search" => $paginator->getSearch(),
                     "posts" => $posts,
                     'greet' => "Signed as " . $claims->getUserFullName(),
                 ],
@@ -44,13 +47,18 @@ class PostController extends InitController
     public function actionGetPostById(ServerRequestInterface $ctx, int $postId): void
     {
         try {
+            $paginator = new Pagination($ctx->getQueryParams());
             $claims = $this->getClaims($ctx);
 
-            $post = $this->postService->getPostById($postId);
+            $postDetails = $this->postService->getPostById($paginator, $postId);
+
             $this->render(
                 "Feed/DetailFeed",
                 [
-                    "post" => $post,
+                    'previousId' => $postDetails['previousPostId'],
+                    'nextId' => $postDetails['nextPostId'],
+                    'paginator' => $paginator,
+                    'post' => $postDetails['post'],
                     'greet' => "Signed as " . $claims->getUserFullName(),
                 ],
             );
