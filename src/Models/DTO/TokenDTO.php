@@ -8,8 +8,8 @@ class TokenDTO
 {
     private string $accessToken;
     private ?string $refreshToken;
-    private ?int $accessTokenexpiresAt;
-    private ?int $refreshTokenexpiresAt;
+    private ?int $accessTokenExpiresAt;
+    private ?int $refreshTokenExpiresAt;
 
 
     public function __construct(string $accessToken, ?string $refreshToken = null)
@@ -32,21 +32,21 @@ class TokenDTO
 
     public function setAccessTokenExpiresAt(int $expiresAt): void
     {
-        $this->accessTokenexpiresAt = $expiresAt;
+        $this->accessTokenExpiresAt = $expiresAt;
     }
 
     public function setRefreshTokenExpiresAt(int $expiresAt): void
     {
-        $this->refreshTokenexpiresAt = $expiresAt;
+        $this->refreshTokenExpiresAt = $expiresAt;
     }
 
     public function getAccessTokenExpiresAt(): int
     {
-        return $this->accessTokenexpiresAt;
+        return $this->accessTokenExpiresAt;
     }
 
     public function getRefreshTokenExpiresAt(): int
     {
-        return $this->refreshTokenexpiresAt;
+        return $this->refreshTokenExpiresAt;
     }
 }

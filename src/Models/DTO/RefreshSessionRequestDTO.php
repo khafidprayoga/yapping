@@ -2,7 +2,7 @@
 
 namespace Khafidprayoga\PhpMicrosite\Models\DTO;
 
-class RefreshSessionRequestDTO
+class RefreshSessionRequestDTO extends BaseRequestDTO
 {
     private string $refreshToken;
 

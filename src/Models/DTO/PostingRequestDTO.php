@@ -6,11 +6,11 @@ use Khafidprayoga\PhpMicrosite\Commons\HttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Valitron\Validator;
 
-class PostingRequestDTO
+class PostingRequestDTO extends BaseRequestDTO
 {
     public string $title;
     public string $content;
-    public string $userId;
+    public int $userId;
 
     /**
      * @throws HttpException
@@ -20,16 +20,18 @@ class PostingRequestDTO
 
         $validator = new Validator($requestData);
         $validator->rule('required', ['title', 'content', 'userId']);
-
-        // todo
+        $validator->rule('lengthBetween', 'title', 10, 100)->message('title must be between 10 and 100 characters long');
+        $validator->rule('numeric', 'userId');
         $isValid = $validator->validate();
 
-        if (!$isValid) {
 
+        if (!$isValid) {
+            throw new HttpException(json_encode($validator->errors()), Response::HTTP_BAD_REQUEST);
         }
 
-        $this->title = $requestData['title'];
-        $this->content = $requestData['content'];
-        $this->userId = $requestData['userId'];
+        $this->title = $this->sanitize($requestData['title']);
+        $this->content = $this->sanitize($requestData['content']);
+        $this->userId = (int)$requestData['userId'];
+
     }
 }
