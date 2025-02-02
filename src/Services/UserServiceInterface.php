@@ -4,6 +4,7 @@ namespace Khafidprayoga\PhpMicrosite\Services;
 
 use Khafidprayoga\PhpMicrosite\Models\DTO\UserDTO;
 use Khafidprayoga\PhpMicrosite\Models\Entities\User;
+use Khafidprayoga\PhpMicrosite\Utils\Pagination;
 
 interface UserServiceInterface
 {
@@ -17,4 +18,5 @@ interface UserServiceInterface
 
     public function getLikedPosts(int $userId): ?array;
 
+    public function getUsers(Pagination $pagination, bool $showSearch): array;
 }

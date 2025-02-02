@@ -21,13 +21,14 @@
 <main class="flex flex-col justify-center items-center mx-auto h-screen">
     <div class="flex flex-col justify-center items-center w-[720px]">
 
-        <h2 class="font-merriWeather font-semibold text-2xl  underline underline-offset-10">{{ post.title }}</h2>
+        <h2 class="font-merriWeather font-semibold text-2xl  underline underline-offset-8 text-center">{{ post.title }}</h2>
 
         <p class="font-rasa py-5 text-lg">
             {{ post.content|nl2br }}
         </p>
 
-        <p class="font-libreBaskerville text-sm text-gray-500 italic my-5">by {{ post.author.fullName }}
+        <p class="font-libreBaskerville text-sm text-gray-500 italic my-5">by
+            <span class="underline underline-offset-5 hover:font-bold hover:cursor-pointer">{{ post.author.fullName }}</span>
             at {{ post.createdAt|ago }}</p>
 
         <div class="flex flex-row font-rasa gap-x-3 gap-y-3" id="actions">
@@ -45,6 +46,14 @@
                     <i data-lucide="house" width="21" height="21" class="opacity-70"></i>
                     <span class=" hover:font-bold font-rasa text-md  hover:underline underline-offset-5 ml-2">Back to Feeds</span>
                 </button>
+                {% if isAuthor %}
+                    |
+                    <button id="action-delete-post"
+                            class="flex flex-row items-center cursor-pointer bg-transparent border-none p-0 hover:opacity-80 transition-opacity duration-300">
+                        <i data-lucide="trash-2" width="21" height="21" class="opacity-70"></i>
+                        <span class=" hover:font-bold font-rasa text-md  hover:underline underline-offset-5">Delete Post</span>
+                    </button>
+                {% endif %}
                 {% if nextId is not null %}
                     |
                     <button id="action-next"
@@ -54,6 +63,14 @@
                     </button>
                 {% endif %}
             {% else %}
+                {% if isAuthor %}
+                    <button id="action-delete-post"
+                            class="flex flex-row items-center cursor-pointer bg-transparent border-none p-0 hover:opacity-80 transition-opacity duration-300">
+                        <i data-lucide="trash-2" width="21" height="21" class="opacity-70"></i>
+                        <span class=" hover:font-bold font-rasa text-md  hover:underline underline-offset-5">Delete Post</span>
+                    </button>
+                    |
+                {% endif %}
                 <button id="action-back-home"
                         class="flex flex-row items-center cursor-pointer bg-transparent border-none p-0 hover:opacity-80 transition-opacity duration-300">
                     <i data-lucide="house" width="21" height="21" class="opacity-70"></i>
@@ -62,7 +79,6 @@
             {% endif %}
         </div>
     </div>
-
 </main>
 {% include 'Partials/lucideCDN.js' %}
 </body>
@@ -73,6 +89,7 @@
     const nextBtn = document.getElementById('action-next');
     const backFeedsBtn = document.getElementById('action-back');
     const backToHomeBtn = document.getElementById('action-back-home');
+    const deletePostBtn = document.getElementById('action-delete-post');
 
     {% if previousId is not null %}
     prevBtn.addEventListener('click', () => {
@@ -95,6 +112,22 @@
     backFeedsBtn.addEventListener('click', () => {
         const queryParams = new URLSearchParams(window.location.search);
         window.location.href = '/feeds?' + queryParams.toString();
+    })
+    {% endif %}
+    {% if isAuthor %}
+    deletePostBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        // action delete post
+        fetch(`/feeds/{{ post.id }}`, {
+            method: 'PATCH',
+            credentials: 'include',
+        }).then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                return response.json();
+            }
+        })
     })
     {% endif %}
 </script>

@@ -26,6 +26,12 @@ $routes = array(
         handler: [Controllers\PostController::class, 'actionGetPostById'],
         middleware: [Middlewares\AuthContext::class]
     ),
+    "DeleteFeedById" => new RouteMap(
+        method: HttpMethod::PATCH,
+        path: "/feeds/([0-9]+)",
+        handler: [Controllers\PostController::class, 'actionDeletePostById'],
+        middleware: [Middlewares\AuthContext::class]
+    ),
     "GetFeeds" => new RouteMap(
         method: HttpMethod::GET,
         path: "/feeds/",

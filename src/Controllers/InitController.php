@@ -164,4 +164,14 @@ class InitController extends Dependency
         return false;
     }
 
+    protected function redirect(string $path): void
+    {
+        //redirect to feeds
+        // Set the HTTP status code to 302 (temporary redirect)
+        http_response_code(302);
+
+        // Set the Location header to the login page URL
+        header('Location: ' . $path);
+        exit(0);
+    }
 }

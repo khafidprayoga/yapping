@@ -5,14 +5,17 @@ namespace Khafidprayoga\PhpMicrosite\UseCases;
 use DI\Attribute\Inject;
 use DI\Attribute\Injectable;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
+use http\QueryString;
 use Khafidprayoga\PhpMicrosite\Models\DTO\UserDTO;
 use Khafidprayoga\PhpMicrosite\Models\Entities\User;
 use Khafidprayoga\PhpMicrosite\Services\PostServiceInterface;
 use Khafidprayoga\PhpMicrosite\Services\ServiceMediatorInterface;
 use Khafidprayoga\PhpMicrosite\Services\UserServiceInterface;
+use Khafidprayoga\PhpMicrosite\Utils\Pagination;
 
 #[Injectable(lazy: true)]
 class UserServiceInterfaceImpl extends InitUseCase implements UserServiceInterface
@@ -84,4 +87,20 @@ SQL;
     }
 
 
+    public function getUsers(Pagination $pagination, bool $showSearch): array
+    {
+        $query = $this->repo->createQueryBuilder("users");
+
+        if ($pagination->isContainsSearch() && $showSearch) {
+            $search = $pagination->getSearch();
+
+            $query
+                ->andWhere("users.fullName  LIKE :search OR users.username LIKE :search")
+                ->setParameter("search", "%$search%");
+        }
+
+        return $query
+            ->orderBy("users.fullName", "ASC")
+            ->getQuery()->getArrayResult();
+    }
 }

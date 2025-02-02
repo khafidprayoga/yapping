@@ -7,15 +7,19 @@ use DI\Attribute\Injectable;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NoResultException;
 use Khafidprayoga\PhpMicrosite\Commons\HttpException;
+use Khafidprayoga\PhpMicrosite\Models\DTO\FeedsRequestDTO;
 use Khafidprayoga\PhpMicrosite\Models\DTO\PostingRequestDTO;
 use Khafidprayoga\PhpMicrosite\Models\Entities\Post;
+use Khafidprayoga\PhpMicrosite\Models\Entities\Session;
 use Khafidprayoga\PhpMicrosite\Services\PostServiceInterface;
 use Khafidprayoga\PhpMicrosite\Services\ServiceMediatorInterface;
 use Khafidprayoga\PhpMicrosite\Services\UserServiceInterface;
 use Exception;
 use Khafidprayoga\PhpMicrosite\Utils\Pagination;
 use Symfony\Component\HttpFoundation\Response;
+use function DI\string;
 
 #[Injectable(lazy: true)]
 class PostServiceInterfaceImpl extends InitUseCase implements PostServiceInterface
@@ -68,6 +72,8 @@ SQL;
             ->addSelect("users")
             ->leftJoin("posts.author", "users")
             ->where("posts.id = :postId")
+            ->andWhere('posts.isDeleted = :isDeleted')
+            ->setParameter("isDeleted", false)
             ->setParameter("postId", $id)
             ->orderBy('posts.id', 'DESC')
             ->getQuery()
@@ -116,7 +122,7 @@ SQL;
 
 
     public
-    function getPosts(Pagination $pagination): array
+    function getPosts(FeedsRequestDTO $pagination): array
     {
         $query = $this->repo
             ->createQueryBuilder("posts")
@@ -124,20 +130,89 @@ SQL;
             ->innerJoin("posts.author", "users")
             ->where("posts.isDeleted = :isDeleted");
 
+        $queryCount = $this->repo
+            ->createQueryBuilder("posts")
+            ->select('COUNT(posts.id)')
+            ->where("posts.isDeleted = :isDeleted")
+            ->setParameter("isDeleted", false);
+
+
         if ($pagination->isContainsSearch()) {
             $search = $pagination->getSearch();
+
             $query
                 ->andWhere("posts.title LIKE :search OR posts.content LIKE :search")
                 ->setParameter("search", "%$search%");
+
+            $queryCount->andWhere("posts.title LIKE :search OR posts.content LIKE :search")
+                ->setParameter("search", "%$search%");
         }
 
-        $query = $query
+        if ($pagination->getAuthorId() > 0) {
+            $query->andWhere("posts.userId = :authorId")
+                ->setParameter("authorId", $pagination->getAuthorId());
+
+            $queryCount->andWhere("posts.userId = :authorId")
+                ->setParameter("authorId", $pagination->getAuthorId());
+        }
+
+
+        if (!is_null($pagination->getStartDate()) && !is_null($pagination->getEndDate())) {
+            $query->andWhere('posts.createdAt BETWEEN :startDate AND :endDate')
+                ->setParameter('startDate', $pagination->getStartDate())
+                ->setParameter('endDate', $pagination->getEndDate());
+
+            $queryCount->andWhere("posts.createdAt BETWEEN :startDate AND :endDate")
+                ->setParameter("startDate", $pagination->getStartDate())
+                ->setParameter("endDate", $pagination->getEndDate());
+        }
+
+        $countPages = $queryCount->getQuery()->getSingleScalarResult();
+
+        $queryList = $query
             ->setParameter("isDeleted", false)
             ->orderBy("posts.id", "DESC")
             ->setFirstResult($pagination->getOffset())
             ->setMaxResults($pagination->getPageSize())
             ->getQuery();
 
-        return $query->getArrayResult();
+        if (!$pagination->isNeedCountOnDB()) {
+            return [
+                'data' => $queryList->getArrayResult(),
+            ];
+        }
+
+        $this->log->debug('counting on db');
+
+        $totalItems = (int)$countPages;
+        $totalPages = (int)ceil($totalItems / $pagination->getPageSize());
+
+
+        return [
+            'data' => $queryList->getArrayResult(),
+            'total_pages' => $totalPages,
+            'total_items' => $totalItems,
+        ];
+    }
+
+    /**
+     * @throws HttpException
+     */
+    public function deletePostById(int $userId, int $postId): void
+    {
+        try {
+            $setRevokeQuery = $this->repo->createQueryBuilder('posts')
+                ->update(Post::class, 'p')
+                ->set('p.isDeleted', true)
+                ->where('p.id = :postId')
+                ->andWhere('p.userId = :userId')
+                ->setParameter('postId', $postId)
+                ->setParameter('userId', $userId)
+                ->getQuery();
+
+            $setRevokeQuery->execute();
+        } catch (Exception $e) {
+            throw new HttpException($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

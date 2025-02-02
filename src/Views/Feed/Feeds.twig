@@ -17,50 +17,228 @@
 </head>
 <body>
 {% include "Partials/NavHeader.twig" with{greet: greet, menu: 'Feeds'} %}
-<main class="flex flex-col flex-wrap justify-center items-center mx-auto h-auto w-full ">
-    {% if posts is not empty %}
-        <div class="grid grid-cols-1 gap-6 p-6 ">
-            {% for post in posts %}
-                <a href="/feeds/{{ post.id }}?page={{ page }}&page_size={{ pageSize }}&search={{ search }}" class="block">
-                    <div class="hover:cursor-pointer flex flex-col justify-center items-center w-full max-w-[720px] border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 px-6 py-6 bg-white">
+<main class="flex flex-row justify-between mx-auto h-auto w-full">
+    {# Left Navigation - Sticky and Centered #}
+    <div id="filter-menu" class="w-2/6 bg-gray-100 p-4 sticky top-0 h-screen flex flex-col items-center justify-center">
+        <form id="filter">
+            <!-- Search Filter -->
+            <div class="mb-4 w-full">
+                <label for="search" class="block text-gray-700">Search</label>
+                <input type="text" id="search" name="search" class="w-full p-2 mt-1 border border-gray-300 rounded"
+                       placeholder="Search..." value="{{ paginator.getSearch }}">
+            </div>
 
-                        {# Post Title #}
-                        <h2 class="font-merriWeather text-2xl font-bold text-gray-900 mt-5 text-center">
-                            {{ post.title }}
-                        </h2>
+            <!-- Get Post by User Author ID -->
+            <div class="mb-4 w-full relative">
+                <label for="customSelectButton" class="block text-gray-700">User Author</label>
+                <input type="hidden" name="authorId" id="selectedAuthorId"
+                       value="{{ paginator.getAuthorId ? paginator.getAuthorId : '' }}">
+                <button type="button" id="customSelectButton"
+                        class="w-full p-2 mt-1 border border-gray-300 rounded text-left">
+                    <span id="selectedAuthorText">
+                        {% if paginator.getAuthorName is not empty %}
+                            {{ paginator.getAuthorName }}
+                        {% else %}
+                            --- Select an Author
+                        {% endif %}
+                    </span>
+                </button>
 
-                        {# Post Content #}
-                        <p class="font-rasa text-gray-700 py-5 text-center leading-relaxed">
-                            {{ post.content|nl2br }}
-                        </p>
+                <div id="dropdown"
+                     class="absolute left-0 top-full w-full bg-white border border-gray-300 rounded shadow-md hidden max-h-60 overflow-y-auto z-50">
+                    {% for author in authors %}
+                        <div class="p-2 hover:bg-gray-200 cursor-pointer" data-value="{{ author.id }}">
+                            {{ author.fullName }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
 
-                        {# Author and Date #}
-                        <p class="text-sm text-gray-500 italic font-libreBaskerville">
-                            by {{ post.author.fullName }} at {{ post.createdAt|ago }}
-                        </p>
+            <!-- Start and End Date -->
+            <div class="mb-4 w-full flex space-x-4">
+                <div class="w-full">
+                    <label for="startDate" class="block text-gray-700">Start Date</label>
+                    <input type="date" id="startDate" name="start_date" value="{{ paginator.getStartDateStr }}"
+                           class="w-full p-2 mt-1 border border-gray-300 rounded">
+                </div>
+                <div class="w-full">
+                    <label for="endDate" class="block text-gray-700">End Date</label>
+                    <input type="date" id="endDate" name="end_date" value="{{ paginator.getEndDateStr }}"
+                           class="w-full p-2 mt-1 border border-gray-300 rounded">
+                </div>
+            </div>
 
-                        {# Upvote and Downvote Section (Commented Out) #}
-                        {# <div id="posts-{{ post.id }}" class="mt-4">
-                    <div class="flex flex-row font-merriWeather gap-x-3 gap-y-3">
-                            <span class="font-rasa text-md mx-2">800 Up vote</span>
-                           <span class="font-rasa text-md mx-2">20 Down vote</span>
-                    </div>
-                    </div> #}
-                    </div>
-                </a>
+            <!-- Filter Button -->
+            <div class="flex flex-row w-full">
+                <button id="applyFilters" type="submit"
+                        class="disabled:bg-blue-300 hover:cursor-pointer bg-blue-600 text-white py-2 px-4 mr-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all">
+                    Apply
+                </button>
+                <button id="resetFilters" type="reset"
+                        class="disabled:bg-red-300 hover:cursor-pointer bg-red-600 text-white py-2 px-4 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all">
+                    Reset
+                </button>
+            </div>
+        </form>
+    </div>
 
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="flex flex-col justify-center items-center w-full max-w-[720px] mx-auto h-screen">
-            <h2 class="font-rasa text-2xl">No posts yet</h2>
-        </div>
 
-    {% endif %}
+    {# Content Section #}
+    <div class="flex-grow p-6">
+        {% if posts is not empty %}
+            <div class="grid grid-cols-1 gap-6">
+                <div class="w-full text-center">
+                    <h3>Total {{ totalItems }} feed items</h3>
+                </div>
+                {% for post in posts %}
+                    <a href="/feeds/{{ post.id }}?page={{ paginator.getPage }}&page_size={{ paginator.getPageSize }}&search={{ paginator.getSearch }}"
+                       class="block">
+                        <div class="hover:cursor-pointer flex flex-col justify-center items-center w-full max-w-[720px] border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 px-6 py-6 bg-white">
 
+                            {# Post Title #}
+                            <h2 class="font-merriWeather text-2xl font-bold text-gray-900 mt-5 text-center">
+                                {{ post.title }}
+                            </h2>
+
+                            {# Post Content #}
+                            <p class="font-rasa text-gray-700 py-5 text-center leading-relaxed">
+                                {{ post.content|nl2br }}
+                            </p>
+
+                            {# Author and Date #}
+                            <p class="text-sm text-gray-500 italic font-libreBaskerville">
+                                by {{ post.author.fullName }} at {{ post.createdAt|ago }}
+                            </p>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+
+            {# Pagination #}
+            <div class="flex justify-center mt-6">
+                <nav class="inline-flex rounded-md shadow-sm space-x-1">
+                    {% if showPrevBtn %}
+                        <a id="prevBtn"
+                           class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-l-sm disabled:hidden hover:bg-gray-50">
+                            Prev
+                        </a>
+                    {% endif %}
+                    <span class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border-t rounded-sm border-b border-gray-300">
+                      Page {{ paginator.getPage }} of {{ totalPages }}
+                 </span>
+                    {% if showNextBtn %}
+                        <a id="nextBtn"
+                           class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-r-sm hover:bg-gray-50">
+                            Next
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+        {% else %}
+            <div class="flex flex-col justify-center items-center w-full  mx-auto h-screen">
+                <h2 class="font-rasa text-2xl">No posts yet</h2>
+            </div>
+        {% endif %}
+    </div>
+
+    {# Right Navigation #}
+    <nav class="w-2/6 bg-gray-100 p-4">
+        {# Add your right navigation content here #}
+        <ul>
+            <li><a href="#" class="text-gray-700 hover:text-gray-900">Link 4</a></li>
+            <li><a href="#" class="text-gray-700 hover:text-gray-900">Link 5</a></li>
+            <li><a href="#" class="text-gray-700 hover:text-gray-900">Link 6</a></li>
+        </ul>
+    </nav>
 </main>
 </body>
 <script>
     {% include 'Partials/logoutActionBtn.js' %}
+
+    const params = new URLSearchParams(window.location.search);
+
+    let authorId = params.get("author_id") ?? 0;
+    let authorName = params.get("author_name") ?? "--- Select an Author";
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const selectButton = document.getElementById('customSelectButton');
+        const dropdown = document.getElementById('dropdown');
+        const selectedText = document.getElementById('selectedAuthorText');
+
+        selectedText.textContent = authorName;
+
+        // Toggle dropdown visibility on button click
+        selectButton.addEventListener('click', () => {
+            dropdown.classList.toggle('hidden');
+        });
+
+        // Update selection on dropdown item click
+        dropdown.addEventListener('click', (e) => {
+            if (e.target.matches('[data-value]')) {
+                const selectedValue = e.target.getAttribute('data-value');
+                selectedText.textContent = e.target.textContent;
+
+                authorName = e.target.textContent.trim();
+                authorId = selectedValue;
+
+                // Update hidden input
+                document.getElementById('selectedAuthorId').value = selectedValue;
+
+                dropdown.classList.add('hidden');
+            }
+        })
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!selectButton.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    });
+
+    const filterForm = document.getElementById('filter');
+
+
+    filterForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+        for (const [key, value] of formData.entries()) {
+            params.set(key, String(value));
+        }
+
+        params.set('author_id', authorId);
+        params.set('author_name', authorName);
+        params.set("page", 1);
+
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+
+        console.log(newUrl)
+        console.log(1)
+        window.location.replace(newUrl);
+    })
+
+    {% if showPrevBtn %}
+    const prevBtn = document.getElementById('prevBtn');
+    prevBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const queryParams = new URLSearchParams(window.location.search);
+        const prevPage = {{ paginator.getPage }}  -1;
+        queryParams.set('page', String(prevPage))
+    })
+    {% endif %}
+
+    {% if showNextBtn %}
+    const nextBtn = document.getElementById('nextBtn');
+    const queryParams = new URLSearchParams(window.location.search);
+    const prevPage = {{ paginator.getPage }} +1;
+    queryParams.set('page', String(prevPage))
+
+    nextBtn.setAttribute("href", `${window.location.pathname}?${queryParams.toString()}`);
+    {% endif %}
+    filterForm.addEventListener('reset', (evt) => {
+        evt.stopPropagation();
+        window.location.href = '/feeds';
+    })
 </script>
 </html>
