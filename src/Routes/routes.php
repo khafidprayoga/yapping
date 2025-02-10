@@ -34,8 +34,14 @@ $routes = array(
     ),
     "GetFeeds" => new RouteMap(
         method: HttpMethod::GET,
-        path: "/feeds/",
+        path: "/feeds",
         handler: [Controllers\PostController::class, 'index'],
+        middleware: [Middlewares\AuthContext::class]
+    ),
+    "NewFeed" => new RouteMap(
+        method: HttpMethod::POST,
+        path: "/feeds",
+        handler: [Controllers\PostController::class, 'actionNewPost'],
         middleware: [Middlewares\AuthContext::class]
     ),
     "CreateUser" => new RouteMap(

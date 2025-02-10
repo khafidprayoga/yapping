@@ -20,7 +20,8 @@ class PostingRequestDTO extends BaseRequestDTO
 
         $validator = new Validator($requestData);
         $validator->rule('required', ['title', 'content', 'userId']);
-        $validator->rule('lengthBetween', 'title', 10, 100)->message('title must be between 10 and 100 characters long');
+        $validator->rule('lengthBetween', 'title', 3, 100)->message('title must be between 3 and 100 characters long');
+        $validator->rule('lengthBetween', 'content', 0, 200)->message('title must be between 3 and 200 characters long');
         $validator->rule('numeric', 'userId');
         $isValid = $validator->validate();
 

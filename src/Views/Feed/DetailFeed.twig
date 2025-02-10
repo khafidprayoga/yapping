@@ -24,7 +24,7 @@
         <h2 class="font-merriWeather font-semibold text-2xl  underline underline-offset-8 text-center">{{ post.title }}</h2>
 
         <p class="font-rasa py-5 text-lg">
-            {{ post.content|nl2br }}
+            {{ post.content|raw|nl2br }}
         </p>
 
         <p class="font-libreBaskerville text-sm text-gray-500 italic my-5">by

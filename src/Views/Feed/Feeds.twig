@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
     <link rel="stylesheet" href="/public/css/styles.min.css">
-
+    <link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet"/>
 
     <!--  fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,16 +21,17 @@
     {# Left Navigation - Sticky and Centered #}
     <div id="filter-menu" class="w-2/6 bg-gray-100 p-4 sticky top-0 h-screen flex flex-col items-center justify-center">
         <form id="filter">
+            <h3 class="text-xl font-semibold my-2">Filter Feeds</h3>
             <!-- Search Filter -->
             <div class="mb-4 w-full">
-                <label for="search" class="block text-gray-700">Search</label>
+                <label for="search" class="block text-gray-700">Search :</label>
                 <input type="text" id="search" name="search" class="w-full p-2 mt-1 border border-gray-300 rounded"
                        placeholder="Search..." value="{{ paginator.getSearch }}">
             </div>
 
             <!-- Get Post by User Author ID -->
             <div class="mb-4 w-full relative">
-                <label for="customSelectButton" class="block text-gray-700">User Author</label>
+                <label for="customSelectButton" class="block text-gray-700">Author :</label>
                 <input type="hidden" name="authorId" id="selectedAuthorId"
                        value="{{ paginator.getAuthorId ? paginator.getAuthorId : '' }}">
                 <button type="button" id="customSelectButton"
@@ -57,12 +58,12 @@
             <!-- Start and End Date -->
             <div class="mb-4 w-full flex space-x-4">
                 <div class="w-full">
-                    <label for="startDate" class="block text-gray-700">Start Date</label>
+                    <label for="startDate" class="block text-gray-700">Start Date :</label>
                     <input type="date" id="startDate" name="start_date" value="{{ paginator.getStartDateStr }}"
                            class="w-full p-2 mt-1 border border-gray-300 rounded">
                 </div>
                 <div class="w-full">
-                    <label for="endDate" class="block text-gray-700">End Date</label>
+                    <label for="endDate" class="block text-gray-700">End Date :</label>
                     <input type="date" id="endDate" name="end_date" value="{{ paginator.getEndDateStr }}"
                            class="w-full p-2 mt-1 border border-gray-300 rounded">
                 </div>
@@ -91,7 +92,7 @@
                     <h3>Total {{ totalItems }} feed items</h3>
                 </div>
                 {% for post in posts %}
-                    <a href="/feeds/{{ post.id }}?page={{ paginator.getPage }}&page_size={{ paginator.getPageSize }}&search={{ paginator.getSearch }}"
+                    <a href="/feeds/{{ post.id }}?page={{ paginator.getPage }}&page_size={{ paginator.getPageSize }}&search={{ paginator.getSearch }}&author_id={{ paginator.getAuthorId }}&author_name={{ paginator.getAuthorName }}&start_date={{ paginator.getStartDate }}&end_date={{ paginator.getEndDate }}"
                        class="block">
                         <div class="hover:cursor-pointer flex flex-col justify-center items-center w-full max-w-[720px] border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 px-6 py-6 bg-white">
 
@@ -102,7 +103,7 @@
 
                             {# Post Content #}
                             <p class="font-rasa text-gray-700 py-5 text-center leading-relaxed">
-                                {{ post.content|nl2br }}
+                                {{ post.content|raw|nl2br }}
                             </p>
 
                             {# Author and Date #}
@@ -142,25 +143,68 @@
     </div>
 
     {# Right Navigation #}
-    <nav class="w-2/6 bg-gray-100 p-4">
-        {# Add your right navigation content here #}
-        <ul>
-            <li><a href="#" class="text-gray-700 hover:text-gray-900">Link 4</a></li>
-            <li><a href="#" class="text-gray-700 hover:text-gray-900">Link 5</a></li>
-            <li><a href="#" class="text-gray-700 hover:text-gray-900">Link 6</a></li>
-        </ul>
-    </nav>
+    <form id="new-post"
+          class="w-2/6 bg-gray-100 p-4 sticky top-0 h-screen flex flex-col items-center justify-center ">
+        <h3 class="text-xl font-semibold">Post a New Content</h3>
+
+        <!-- Field Title -->
+        <div class="w-full mb-4">
+            <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+            <input type="text" id="title" name="title"
+                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                   placeholder="Enter your title min 3 max 100 characters" maxlength="100">
+        </div>
+
+        <!-- Editor -->
+        <div id="editor" class="w-full mb-4 h-[125px] ">
+            <label for="content" class="block text-sm font-medium text-gray-700">Content</label>
+            <div id="content" class="w-full mb-4">
+                   <textarea name="content" rows="4"
+                             class="mt-1 block w-full h-[100px] px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm resize-none overflow-hidden "
+                             maxlength="200"
+                   ></textarea>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="post-apply"
+                class="hover:cursor-pointer w-1/4 rounded-md mt-16 px-4 py-2 disabled:bg-blue-300 hover:cursor-pointer bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all">
+            Post
+        </button>
+        </div>
+    </form>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.js"></script>
 </body>
 <script>
     {% include 'Partials/logoutActionBtn.js' %}
 
+    const quill = new Quill("#content", {
+        theme: 'snow',
+        modules: {
+            toolbar: [['bold', 'italic']]
+        },
+        formats: ['bold', 'italic'],
+        placeholder: "Write your content here, max 200 characters"
+    });
+
+
     const params = new URLSearchParams(window.location.search);
 
-    let authorId = params.get("author_id") ?? 0;
-    let authorName = params.get("author_name") ?? "--- Select an Author";
+    let authorId = params.get("author_id") || 0;
+    let authorName = params.get("author_name") || "--- Select an Author";
 
     document.addEventListener('DOMContentLoaded', () => {
+        quill.on('text-change', function () {
+            const maxLength = 200; // Maksimal 200 karakter
+            let text = quill.getText();
+            if (text.length > maxLength) {
+                quill.deleteText(maxLength, text.length);
+            }
+        });
+
+
         const selectButton = document.getElementById('customSelectButton');
         const dropdown = document.getElementById('dropdown');
         const selectedText = document.getElementById('selectedAuthorText');
@@ -239,6 +283,47 @@
     filterForm.addEventListener('reset', (evt) => {
         evt.stopPropagation();
         window.location.href = '/feeds';
+    })
+
+    const postForm = document.getElementById('new-post');
+    postForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+
+        const submitFormBtn = document.getElementById('post-apply');
+        submitFormBtn.disabled = true;
+
+        //blocks
+        setTimeout(function () {
+            const formData = new FormData(event.target);
+
+            let htmlContent = quill.root.innerHTML
+            htmlContent = htmlContent.replace(/<\/?p>/g, '');
+
+            const body = {
+                title: formData.get('title'),
+                content: htmlContent
+            }
+
+            fetch('/feeds', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body),
+                signal: AbortSignal.timeout(1000)
+            }).then(
+                function (response) {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                }
+            ).catch(function (error) {
+            }).finally(function () {
+                submitFormBtn.disabled = false;
+            })
+
+        }, 1000)
     })
 </script>
 </html>

@@ -81,9 +81,7 @@
             }).then(
                 function (response) {
                     if (response.redirected) {
-                        window.location.href = response.url;
-                    } else {
-                        return response.json();
+                        window.location.reload();
                     }
                 }
             ).then(function (response) {
@@ -98,7 +96,6 @@
             })
 
         }, 1000)
-
     });
 </script>
 </html>

@@ -60,7 +60,7 @@ SQL;
         $query->executeQuery();
         $id = $this->entityManager->getConnection()->lastInsertId();
 
-        return $this->getPostById($id);
+        return $this->getPostById(new Pagination([]), $id);
     }
 
     /**

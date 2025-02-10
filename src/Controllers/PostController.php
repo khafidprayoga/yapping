@@ -5,6 +5,7 @@ namespace Khafidprayoga\PhpMicrosite\Controllers;
 use Exception;
 use Khafidprayoga\PhpMicrosite\Commons\HttpException;
 use Khafidprayoga\PhpMicrosite\Models\DTO\FeedsRequestDTO;
+use Khafidprayoga\PhpMicrosite\Models\DTO\PostingRequestDTO;
 use Khafidprayoga\PhpMicrosite\Utils\Greet;
 use Khafidprayoga\PhpMicrosite\Utils\Pagination;
 use Psr\Http\Message\ServerRequestInterface;
@@ -97,6 +98,20 @@ class PostController extends InitController
     {
         $claims = $this->getClaims($ctx);
         $this->postService->deletePostById($claims->getUserId(), $postId);
+
+        $this->redirect("/feeds");
+    }
+
+    public function actionNewPost(ServerRequestInterface $ctx): void
+    {
+        $claims = $this->getClaims($ctx);
+        $body = array_merge([
+            'userId' => $claims->getUserId(),
+        ], $this->getJsonBody($ctx));
+
+        $req = new PostingRequestDTO($body);
+
+        $this->postService->createNewPost($req);
 
         $this->redirect("/feeds");
     }

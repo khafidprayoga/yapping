@@ -5,7 +5,6 @@ namespace Khafidprayoga\PhpMicrosite\Models\DTO;
 use Khafidprayoga\PhpMicrosite\Commons\HttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Valitron\Validator;
-use Exception;
 
 class UserDTO
 {
@@ -21,23 +20,23 @@ class UserDTO
 
         $validator = new Validator($requestData);
         $validator->rule('required', ['fullName', 'username', 'password', 'passwordVerify']);
-        $validator->rule('email', 'username');
+        $validator->rule('email', 'username')->message('Username must be a valid email address');
 
-        $validator
-            ->rule('lengthBetween', 'password', 8, 32)->message('Password must be between 8 and 32 characters long')
-            ->rule('regex', 'password', '/[A-Z]/')  // Must contain at least one uppercase letter
-            ->rule('regex', 'password', '/[a-z]/')  // Must contain at least one lowercase letter
-            ->rule('regex', 'password', '/\d/')     // Must contain at least one number
-            ->rule('regex', 'password', '/[@$!%*?&]/'); // Must contain at least one special character
+        $validator->rule('regex', 'password', '/[A-Z]/')->message('uppercase letter');
+        $validator->rule('regex', 'password', '/[a-z]/')->message('lowercase letter');
+        $validator->rule('regex', 'password', '/\d/')->message('one numeric');
+        $validator->rule('regex', 'password', '/[@$!%*?&]/')->message("special character");
+        $validator->rule('lengthBetween', 'password', 8, 32)->message('and between 8 and 32 characters long');
 
-        $validator->rule('equals', 'password', 'passwordVerify')->message("Passwords don't match");
+        $validator->rule('equals', 'passwordVerify', 'password')->message("Passwords don't match");
 
         $isValid = $validator->validate();
+
         if (!$isValid) {
-            foreach ($validator->errors() as $field => $messages) {
-                throw new HttpException($messages[0], Response::HTTP_BAD_REQUEST);
-            }
+            $errors = $validator->errors();
+            throw new HttpException($errors, Response::HTTP_BAD_REQUEST);
         }
+
         $this->fullName = $requestData['fullName'];
         $this->username = $requestData['username'];
         $this->password = $requestData['password'];

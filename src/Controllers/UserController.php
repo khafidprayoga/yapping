@@ -19,6 +19,12 @@ class UserController extends InitController
             $data = $this->getFormData($request);
             $userRegister = new UserDTO($data);
 
+
+            $userExist = $this->userService->getUserByUsername($userRegister->username);
+            if (!empty($userExist)) {
+                throw new HttpException("Sorry, user with this email already exist", Response::HTTP_BAD_REQUEST);
+            }
+
             // creating user
             $this->userService->createUser($userRegister);
 
@@ -37,7 +43,7 @@ class UserController extends InitController
 
             $this->redirect('/feeds');
         } catch (HttpException $err) {
-            $this->responseJson($err, null, Response::HTTP_INTERNAL_SERVER_ERROR);
+            $this->responseJson($err, null, $err->getCode());
         }
     }
 
@@ -67,7 +73,6 @@ class UserController extends InitController
         // if error instance of claims validation force render the template
         $this->render('User/SignUp', [
             'actionUrl' => '/users/register',
-            'httpMethod' => 'POST',
         ]);
     }
 
