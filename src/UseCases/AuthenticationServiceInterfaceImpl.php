@@ -31,6 +31,8 @@ class AuthenticationServiceInterfaceImpl extends InitUseCase implements AuthServ
     private const int accessTokenExpiresInHours = 5;
     private const int refreshTokenAllowUsageInHours = 3;
     private const int refreshTokenExpiresInDays = 7;
+    private const int resetTokenExpiresInHours = 5;
+
     private readonly UserServiceInterface $userService;
 
     private readonly EntityRepository $repo;
@@ -184,6 +186,32 @@ SQL;
         ];
     }
 
+
+    public function generateResetToken(string $username): array
+    {
+        $expiresAt = Carbon::now()->addHours(self::resetTokenExpiresInHours);
+
+        $payload = [
+            'iat' => Carbon::now()->timestamp,
+            'jti' => $username,
+            'exp' => $expiresAt->timestamp,
+        ];
+
+        if (APP_CONFIG->appMode === AppMode::PRODUCTION) {
+            $payload['nbf'] = Carbon::now()->timestamp;
+        }
+
+        $encoded = JWT::encode(
+            payload: $payload,
+            key: $this->jwtSecret,
+            alg: 'HS256'
+        );
+
+        return [
+            "token" => $encoded,
+            "expiresAt" => $expiresAt,
+        ];
+    }
 
     /**
      * @throws HttpException|BeforeValidException

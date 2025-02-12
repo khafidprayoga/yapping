@@ -99,6 +99,11 @@ class InitController extends Dependency
         return $req->getParsedBody();
     }
 
+    protected function getQueryParameters(ServerRequestInterface $req): array
+    {
+        return $req->getQueryParams();
+    }
+
     protected function responseJson(?HttpException $err, mixed $data = [], ?int $statusCode = 200): void
     {
 

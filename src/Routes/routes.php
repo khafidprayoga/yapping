@@ -57,7 +57,13 @@ $routes = array(
     "Logout" => new RouteMap(
         method: HttpMethod::POST,
         path: "/users/logout",
-        handler: [Controllers\UserController::class, 'actionLogout']
+        handler: [Controllers\UserController::class, 'actionLogout'],
+        middleware: [Middlewares\AuthContext::class],
+    ),
+    "ResetPasswordCheckpoint" => new RouteMap(
+        method: HttpMethod::POST,
+        path: "/users/forgot_password",
+        handler: [Controllers\UserController::class, 'actionResetPassword']
     ),
     "SignIn" => new RouteMap(
         method: HttpMethod::GET,
@@ -68,6 +74,11 @@ $routes = array(
         method: HttpMethod::GET,
         path: "/signup",
         handler: [Controllers\UserController::class, 'signUp']
+    ),
+    "ForgotPassword" => new RouteMap(
+        method: HttpMethod::GET,
+        path: "/users/forgot",
+        handler: [Controllers\UserController::class, 'resetPassword']
     ),
     "RevalidateSession" => new RouteMap(
         method: HttpMethod::POST,

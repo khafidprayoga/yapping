@@ -8,7 +8,7 @@ class JwtClaimsDTO
 {
     private ?int $userId;
     private ?string $userFullName;
-    private ?string $jti; // Make jti nullable
+    private ?string $jti;
     private ?Carbon $issuedAt;
     private ?Carbon $expiresAt;
     private ?Carbon $notBeforeTimeAt;
@@ -33,6 +33,11 @@ class JwtClaimsDTO
     public function getUserId(): int
     {
         return $this->userId;
+    }
+
+    public function getUsername(): string
+    {
+        return $this->username;
     }
 
     public function getUserFullName(): ?string
@@ -86,8 +91,5 @@ class JwtClaimsDTO
         return $arr;
     }
 
-    public function isAccessToken(): bool
-    {
-        return $this->jti === null;
-    }
+
 }

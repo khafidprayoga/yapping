@@ -10,9 +10,13 @@ use Khafidprayoga\PhpMicrosite\Models\DTO\UserDTO;
 use Khafidprayoga\PhpMicrosite\Utils\Cookies;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Valitron\Validator;
 
 class UserController extends InitController
 {
+    private const int PASSWORD_RESET_MAX_ATTEMPT_COUNT = 3;
+    private const int PASSWORD_RESET_COOLDOWN_IN_HOURS = 1;
+
     public function actionCreateUser(ServerRequestInterface $request): void
     {
         try {
@@ -106,12 +110,11 @@ class UserController extends InitController
         }
     }
 
-    public function actionLogout(): void
+    public function actionLogout(ServerRequestInterface $request): void
     {
         // check token
-        $accessToken = $_COOKIE['accessToken'] ?? null;
-        $refreshToken = $_COOKIE['refreshToken'] ?? null;
-        if (is_null($accessToken) && is_null($refreshToken)) {
+        $isAuthenticated = $this->authCheck($request);
+        if (!$isAuthenticated) {
             $this->redirect('/signin');
         }
 
@@ -150,5 +153,104 @@ class UserController extends InitController
         }
     }
 
+    public function resetPassword(ServerRequestInterface $request): void
+    {
+        // check token
+        $isAuthenticated = $this->authCheck($request);
+        if ($isAuthenticated) {
+            $this->redirect('/feeds');
+        }
 
+        session_name('RESETPASS');
+        session_start();
+
+        if (!isset($_SESSION['reset_attempts'])) {
+            $_SESSION['reset_attempts'] = 1;
+            $_SESSION['reset_attempts_first_time'] = Carbon::now()->timestamp;
+        }
+
+        $queryParams = $this->getQueryParameters($request);
+        $hasToken = false;
+
+        if (isset($queryParams['token'])) {
+            try {
+                $claims = $this->authService->validate($queryParams['token']);
+                if ($claims !== null) {
+                    $validator = new Validator([
+                        'email' => $claims->getJti(),
+                    ]);
+
+                    $validator->rule('email', 'email');
+                    if ($validator->validate()) {
+                        $hasToken = true;
+                    }
+                }
+            } catch (HttpException) {
+                //ignore invalid malformed jwt to prevent panic
+            }
+        }
+
+
+        // if user doesnt has token or token expired render login page
+        $this->render('User/Forgot', [
+            'actionUrl' => '/users/forgot_password',
+            'hasToken' => $hasToken,
+        ]);
+    }
+
+    public function actionResetPassword(ServerRequestInterface $request): void
+    {
+        try {
+            $isAuthenticated = $this->authCheck($request);
+            if ($isAuthenticated) {
+                $this->redirect('/feeds');
+            }
+
+
+            // get form
+            $formData = $this->getFormData($request);
+            if (!isset($formData['username'])) {
+                throw new HttpException('username field is required', Response::HTTP_BAD_REQUEST);
+            }
+
+            if (!isset($_COOKIE['RESETPASS'])) {
+                $this->redirect('/users/forgot');
+            }
+
+            session_name('RESETPASS');
+            session_start();
+            if ($_SESSION['reset_attempts'] >= self::PASSWORD_RESET_MAX_ATTEMPT_COUNT) {
+                $since = Carbon::createFromTimestamp($_SESSION['reset_attempts_first_time'])->setTimezone(APP_CONFIG->serverTimeZone);
+
+                // check from limit time
+                if ($since->diffInHours(Carbon::now()) < self::PASSWORD_RESET_COOLDOWN_IN_HOURS) {
+                    $msg = sprintf('Too many reset password request attempt, please try again after %s', $since->addHour(self::PASSWORD_RESET_COOLDOWN_IN_HOURS)->toDateTimeString());
+                    throw new HttpException($msg, Response::HTTP_INTERNAL_SERVER_ERROR);
+                } else {
+                    // reset after the cooldown lease
+                    $_SESSION['reset_attempts'] = 0;
+                    $_SESSION['reset_attempts_first_time'] = Carbon::now()->timestamp;
+                }
+            }
+
+            // increase limiter
+            $_SESSION['reset_attempts']++;
+
+            // generate jwt token for reset password
+            $resetToken = $this->authService->generateResetToken($formData['username']);
+
+            // stub (as mailbox)
+            $this->log->info('Reset password request', [
+                'email' => $formData['username'],
+                'resetToken' => $resetToken['token'],
+                'uri' => APP_CONFIG->appDomain . "/users/forgot?token=" . $resetToken['token'],
+                'text' => 'You are requested to reset your password, if its an mistake, ignore this email',
+            ]);
+
+            // only set response ok
+            $this->responseJson(null, 'success sent reset password to mailbox', Response::HTTP_OK);
+        } catch (HttpException $err) {
+            $this->responseJson($err, null, $err->getCode());
+        }
+    }
 }

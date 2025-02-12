@@ -1,0 +1,127 @@
+<html lang="en">
+<head>
+    <title> X Microsite / Forgot Password</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/public/css/styles.min.css">
+
+
+    <!--  fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Merriweather+Sans:ital,wght@0,300..800;1,300..800&family=Rasa:ital,wght@0,300..700;1,300..700&display=swap"
+          rel="stylesheet">
+    <!--  fonts -->
+</head>
+<body>
+<div id="form-wrapper" class="flex flex-col justify-center items-center mx-auto h-screen">
+    <div id="form-container" class="flex flex-col justify-center items-center">
+        <div class="bg-white rounded-lg shadow-2xl p-8 w-lg transform transition-all duration-300 hover:scale-105">
+            <h2 class="font-merriWeather font-semibold text-3xl text-center text-gray-800 mb-6">Reset Password</h2>
+            <form id="resetPassword" class="flex flex-col space-y-6">
+                {% if not hasToken %}
+                    <div class="form-group">
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" name="username" autofocus
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               id="username" aria-describedby="usernameHelp" placeholder="web@example.com">
+                    </div>
+
+                    <div id="successStatus" class="text-green-800 font-thin hidden">
+                        <h4>Reset password request has been sent, checks your email inbox or spam.</h4>
+                    </div>
+
+                    <div id="errStatus" class="text-red-800 font-thin hidden">
+                        <h4 id="errStatusMsg"></h4>
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                        <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-2">New
+                            Password</label>
+                        <input type="password" name="newPassword" autofocus
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               id="newPassword" aria-describedby="newPasswordHelp">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPasswordVerify"
+                               class="block text-sm font-medium text-gray-700 mb-2">Verify New Password</label>
+                        <input type="password" name="newPasswordVerify"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               id="newPasswordVerify" aria-describedby="newPasswordVerifyHelp">
+                    </div>
+
+                    <div id="errStatus" class="text-red-800 font-thin hidden">
+                        <h4 id="errStatusMsg"></h4>
+                    </div>
+                {% endif %}
+                <div class="form-actions w-1/4 mx-auto">
+                    <button id="submitForm" type="submit"
+                            class="disabled:bg-blue-300 hover:cursor-pointer w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all">
+                        Submit
+                    </button>
+                </div>
+            </form>
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-600 ">Don't have an account? <a href="/signup"
+                                                                            class="text-blue-600 hover:text-blue-500 transition-all hover:underline hover:font-semibold">Sign
+                        up</a></p>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    {% if not hasToken %}
+    document.getElementById('resetPassword').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const submitFormBtn = document.getElementById('submitForm');
+        const username = document.getElementById('username');
+
+
+        //blocks
+        setTimeout(function () {
+            const formData = new URLSearchParams(new FormData(event.target));
+
+            submitFormBtn.disabled = true;
+            username.disabled = true;
+
+            fetch('{{ actionUrl }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString(),
+            }).then(
+                function (response) {
+                    if (response.ok) {
+                        const successStatus = document.getElementById('successStatus')
+                        successStatus.classList.remove('hidden');
+                    }
+
+                    return response.json()
+                }
+            ).then(function (response) {
+                if (response.errorMessage) {
+
+                    const errEl = document.getElementById('errStatus');
+                    const errMsg = document.getElementById('errStatusMsg');
+                    errEl.classList.remove('hidden');
+
+                    errMsg.textContent = response.errorMessage;
+
+                    submitFormBtn.disabled = false;
+                    username.disabled = false;
+                }
+            }).catch(function (error) {
+                console.log(error)
+            })
+
+        }, 1000)
+    });
+    {% else %}
+    {% endif %}
+</script>
+</html>
