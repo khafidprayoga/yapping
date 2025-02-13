@@ -125,8 +125,7 @@ SQL;
     }
 
 
-    public
-    function getPosts(FeedsRequestDTO $pagination): array
+    public function getPosts(FeedsRequestDTO $pagination): array
     {
         $query = $this->repo
             ->createQueryBuilder("posts")
