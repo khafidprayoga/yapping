@@ -10,6 +10,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use http\QueryString;
+use Khafidprayoga\PhpMicrosite\Models\DTO\ResetPasswordRequestDTO;
 use Khafidprayoga\PhpMicrosite\Models\DTO\UserDTO;
 use Khafidprayoga\PhpMicrosite\Models\Entities\User;
 use Khafidprayoga\PhpMicrosite\Services\PostServiceInterface;
@@ -102,5 +103,30 @@ SQL;
         return $query
             ->orderBy("users.fullName", "ASC")
             ->getQuery()->getArrayResult();
+    }
+
+    public function changeUserPassword(ResetPasswordRequestDTO $request): bool
+    {
+        $hashedPassword = password_hash(
+            $request->password,
+            PASSWORD_BCRYPT,
+            ['cost' => PASSWORD_BCRYPT_DEFAULT_COST],
+        );
+
+        $dql = <<<SQL
+    UPDATE  
+        users
+        SET password = :password
+    WHERE username = :username
+SQL;
+
+
+        $query = $this->entityManager->getConnection()->prepare($dql);
+        $query->bindValue(':username', $request->username);
+        $query->bindValue(':password', $hashedPassword);
+
+        $query->executeQuery();
+
+        return true;
     }
 }

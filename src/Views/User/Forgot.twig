@@ -37,18 +37,28 @@
                     </div>
                 {% else %}
                     <div class="form-group">
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" name="username"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-200"
+                               id="username" aria-describedby="usernameHelp" placeholder="web@example.com" disabled
+                               value="{{ email }}">
+                    </div>
+
+                    <div class="form-group">
                         <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-2">New
                             Password</label>
-                        <input type="password" name="newPassword" autofocus
+                        <input type="text" name="newPassword" autofocus required aria-required="true"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                id="newPassword" aria-describedby="newPasswordHelp">
+                        <span id="newPasswordErr" class="my-2 text-xs text-red-500 font-medium hidden"></span>
                     </div>
                     <div class="form-group">
                         <label for="newPasswordVerify"
                                class="block text-sm font-medium text-gray-700 mb-2">Verify New Password</label>
-                        <input type="password" name="newPasswordVerify"
+                        <input type="text" name="newPasswordVerify" required aria-required="true"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                id="newPasswordVerify" aria-describedby="newPasswordVerifyHelp">
+                        <span id="newPasswordVerifyErr" class="my-2 text-xs text-red-500 font-medium hidden"></span>
                     </div>
 
                     <div id="errStatus" class="text-red-800 font-thin hidden">
@@ -62,12 +72,14 @@
                     </button>
                 </div>
             </form>
-            <div class="mt-6 text-center">
-                <p class="text-sm text-gray-600 ">Don't have an account? <a href="/signup"
-                                                                            class="text-blue-600 hover:text-blue-500 transition-all hover:underline hover:font-semibold">Sign
-                        up</a></p>
+            {% if not hasToken %}
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600 ">Don't have an account? <a href="/signup"
+                                                                                class="text-blue-600 hover:text-blue-500 transition-all hover:underline hover:font-semibold">Sign
+                            up</a></p>
 
-            </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -121,7 +133,85 @@
 
         }, 1000)
     });
+
     {% else %}
+
+    document.getElementById('resetPassword').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const submitFormBtn = document.getElementById('submitForm');
+        const newPassword = document.getElementById('newPassword');
+        const newPasswordVerify = document.getElementById('newPasswordVerify');
+        const passwordErr = document.getElementById('newPasswordErr');
+        const passwordVerifyErr = document.getElementById('newPasswordVerifyErr');
+
+
+
+        passwordErr.classList.add('hidden');
+        passwordVerifyErr.classList.add('hidden');
+        //blocks
+        setTimeout(function () {
+            const queryParams = new URLSearchParams(window.location.search);
+            const formData = new URLSearchParams(new FormData(event.target));
+
+            formData.set('token', queryParams.get('token'));
+
+            submitFormBtn.disabled = true;
+            newPassword.disabled = true;
+            newPasswordVerify.disabled = true;
+            fetch('/users/forgot_password/change_password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString(),
+            }).then(
+                function (response) {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+
+                    return response.json()
+                }
+            ).then(function (response) {
+                if (response.errorMessage) {
+                    const errEl = document.getElementById('errStatus');
+                    const errMsg = document.getElementById('errStatusMsg');
+
+
+                    if (typeof response.errorMessage === 'object') {
+                        for (const [fields, msg] of Object.entries(response.errorMessage)) {
+                            if (fields === 'newPassword') {
+                                passwordErr.classList.remove('hidden')
+                                const m = msg.join(', ');
+                                passwordErr.textContent = m
+                                continue;
+                            }
+
+                            if (fields === 'newPasswordVerify') {
+                                passwordVerifyErr.classList.remove('hidden')
+                                const m = msg.join(', ');
+                                passwordVerifyErr.textContent = m
+                                continue;
+                            }
+                        }
+                    } else {
+                        // handle internal error
+                        errEl.classList.remove('hidden');
+                        errMsg.textContent = response.errorMessage;
+                    }
+
+                    submitFormBtn.disabled = false;
+                    newPassword.disabled = false;
+                    newPasswordVerify.disabled = false;
+                }
+            }).catch(function (error) {
+                console.log(error)
+            })
+
+        }, 1000)
+    });
     {% endif %}
 </script>
 </html>

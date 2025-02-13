@@ -87,19 +87,19 @@ class InitController extends Dependency
         exit;
     }
 
-    protected function getJsonBody(ServerRequestInterface $req): array
+    protected function getJsonBody(ServerRequestInterface $req): array|null
     {
         $body = (string)$req->getBody();
         value($body);
         return json_decode($body, true);
     }
 
-    protected function getFormData(ServerRequestInterface $req): array
+    protected function getFormData(ServerRequestInterface $req): array|null
     {
         return $req->getParsedBody();
     }
 
-    protected function getQueryParameters(ServerRequestInterface $req): array
+    protected function getQueryParameters(ServerRequestInterface $req): array|null
     {
         return $req->getQueryParams();
     }

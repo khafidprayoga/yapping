@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Khafidprayoga\PhpMicrosite\Commons\HttpException;
 use Khafidprayoga\PhpMicrosite\Models\DTO\LoginRequestDTO;
 use Khafidprayoga\PhpMicrosite\Models\DTO\RefreshSessionRequestDTO;
+use Khafidprayoga\PhpMicrosite\Models\DTO\ResetPasswordRequestDTO;
 use Khafidprayoga\PhpMicrosite\Models\DTO\UserDTO;
 use Khafidprayoga\PhpMicrosite\Utils\Cookies;
 use Psr\Http\Message\ServerRequestInterface;
@@ -172,6 +173,7 @@ class UserController extends InitController
         $queryParams = $this->getQueryParameters($request);
         $hasToken = false;
 
+        $email = '';
         if (isset($queryParams['token'])) {
             try {
                 $claims = $this->authService->validate($queryParams['token']);
@@ -182,6 +184,7 @@ class UserController extends InitController
 
                     $validator->rule('email', 'email');
                     if ($validator->validate()) {
+                        $email = $claims->getJti();
                         $hasToken = true;
                     }
                 }
@@ -195,6 +198,7 @@ class UserController extends InitController
         $this->render('User/Forgot', [
             'actionUrl' => '/users/forgot_password',
             'hasToken' => $hasToken,
+            'email' => $email,
         ]);
     }
 
@@ -249,6 +253,55 @@ class UserController extends InitController
 
             // only set response ok
             $this->responseJson(null, 'success sent reset password to mailbox', Response::HTTP_OK);
+        } catch (HttpException $err) {
+            $this->responseJson($err, null, $err->getCode());
+        }
+    }
+
+    public function actionChangePassword(ServerRequestInterface $request): void
+    {
+        try {
+            $isAuthenticated = $this->authCheck($request);
+            if ($isAuthenticated) {
+                $this->redirect('/feeds');
+            }
+
+            session_name('RESETPASS');
+            session_start();
+
+            // get form
+            $formData = $this->getFormData($request);
+            if (!isset($formData['token'])) {
+                throw new HttpException('token field is required', Response::HTTP_BAD_REQUEST);
+            }
+
+            $resetToken = $this->authService->validate($formData['token']);
+            $email = $resetToken->getJti();
+
+            $formData['username'] = $email;
+            $req = new ResetPasswordRequestDTO($formData);
+
+            // change password
+            $this->userService->changeUserPassword($req);
+
+            // reset the session checkpoint count rate limiter
+            // set expiring on browser
+            session_destroy();
+            setcookie('RESETPASS', '', Cookies::formatSettings(
+                appConfig: APP_CONFIG,
+                expiresIn: Carbon::now()->addDays(-30)->timestamp,
+                path: '/',
+            ));
+            unset($_COOKIE['RESETPASS']);
+
+            // redirect to feeds
+            $newReq = [
+                'username' => $req->username,
+                'password' => $req->password,
+            ];
+
+            // signing user with new credentials password
+            $this->actionAuthenticate($request->withParsedBody($newReq));
         } catch (HttpException $err) {
             $this->responseJson($err, null, $err->getCode());
         }

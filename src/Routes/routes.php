@@ -65,6 +65,11 @@ $routes = array(
         path: "/users/forgot_password",
         handler: [Controllers\UserController::class, 'actionResetPassword']
     ),
+    "ChangePassword" => new RouteMap(
+        method: HttpMethod::POST,
+        path: "/users/forgot_password/change_password",
+        handler: [Controllers\UserController::class, 'actionChangePassword']
+    ),
     "SignIn" => new RouteMap(
         method: HttpMethod::GET,
         path: "/signin",
