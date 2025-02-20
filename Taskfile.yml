@@ -1,10 +1,14 @@
 version: '3'
 
 tasks:
+  build-css:
+    cmds:
+      - npx @tailwindcss/cli -i ".\assets\css\tailwind.css" -o ".\public\css\styles.min.css" --minify
+    silent: true
   compile-css:
     cmds:
       - npx @tailwindcss/cli -i ".\assets\css\tailwind.css" -o ".\public\css\styles.min.css" --minify --watch
-  #    silent: true
+  #      silent: true
   run-dev:
     cmds:
       - composer dev
@@ -13,3 +17,12 @@ tasks:
     cmds:
       - composer lint
     silent: true
+  docker-build:
+    deps:
+      - build-css
+    cmds:
+      - docker buildx build --network=host -t yapping:latest -f Dockerfile .
+    silent: true
+  serve-prod:
+    cmds:
+      - docker run -e CADDY_GLOBAL_OPTIONS="debug" -e SERVER_NAME="127.0.0.1" -p 80:80 -p 443:443 -p 443:443/udp --name yap yapping:latest
