@@ -3,7 +3,8 @@
         X Microsite / {{ menu|default('Resource') }}
     </h1>
 
-    <span class="text-gray-700 font-light truncate">
+    {% if greet %}
+        <span class="text-gray-700 font-light truncate">
         {{ greet }},
          <button
                  id="logoutBtn"
@@ -13,4 +14,5 @@
         Logout
     </button>
     </span>
+    {% endif %}
 </div>
