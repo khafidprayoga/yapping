@@ -4,8 +4,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
+    <meta http-equiv="refresh" content="3;url=/feeds">
     <link rel="stylesheet" href="/public/css/styles.min.css">
-
 
     <!--  fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,7 +16,7 @@
 
 </head>
 <body>
-{% include "Partials/NavHeader.twig" with{greet: greet, menu: 'Feeds'} %}
+{% include "Partials/NavHeader.twig" with{greet: greet, menu: menu ?? 'Feeds'} %}
 <main class="flex flex-col justify-center items-center mx-auto h-screen">
     <div class="flex flex-col justify-center items-center w-[720px]">
         <h2 class="font-merriWeather font-semibold text-2xl">Something went wrong</h2>
@@ -28,5 +28,9 @@
 </body>
 <script>
     {% include 'Partials/logoutActionBtn.js' %}
+
+    setTimeout(function () {
+        window.location.href = "/feeds";
+    }, 3000);
 </script>
 </html>
