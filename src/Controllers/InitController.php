@@ -175,6 +175,7 @@ class InitController extends Dependency
 
     protected function redirect(string $path): void
     {
+        header_remove('X-Powered-By');
         //redirect to feeds
         // Set the HTTP status code to 302 (temporary redirect)
         http_response_code(302);
